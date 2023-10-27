@@ -237,6 +237,7 @@ namespace raktarmozgas
                     iOfMaxEladas = i;
                 }
             }
+            while (Console.ReadKey(ConsoleKey.Enter);
 
             Console.WriteLine($"\t{iOfMaxEladas} óra: {maxEladas} db. eladás");
         }
