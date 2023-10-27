@@ -179,25 +179,28 @@ namespace raktarmozgas
             {
                 forgalom[b.ora]++;
 
-                if (b.tipus == MozgasTipus.VASARLAS)
+                switch (b.tipus)
                 {
-                    vasarlas[b.ora]++;
-                }
-
-                if (b.tipus == MozgasTipus.ELADAS)
-                {
-                    eladas[b.ora]++;
+                    case MozgasTipus.VASARLAS:
+                        vasarlas[b.ora]++;
+                        break;
+                    case MozgasTipus.ELADAS:
+                        eladas[b.ora]++;
+                        break;
                 }
             }
 
-            int maxForgalom = forgalom[8];
-            int iOfMaxForgalom = 8;
-            int maxVasarlas = vasarlas[8];
-            int iOfMaxVasarlas = 8;
-            int maxEladas = eladas[8];
-            int iOfMaxEladas = 8;
+            int nyitas = 8;
+            int zaras = 16;
 
-            for (var i = 9;  i <= 16; i++)
+            int maxForgalom = forgalom[nyitas];
+            int iOfMaxForgalom = nyitas;
+            int maxVasarlas = vasarlas[nyitas];
+            int iOfMaxVasarlas = nyitas;
+            int maxEladas = eladas[nyitas];
+            int iOfMaxEladas = nyitas;
+
+            for (var i = nyitas+1;  i <= zaras; i++)
             {
                 if (forgalom[i] > maxForgalom)
                 {
@@ -222,7 +225,7 @@ namespace raktarmozgas
             Console.WriteLine($"\t{iOfMaxVasarlas} óra: {maxVasarlas} db. vásárlás");
             Console.WriteLine($"\t{iOfMaxEladas} óra: {maxEladas} db. eladás");
 
-            Console.WriteLine("Adja meg, hogy melyik óra forgalmi adatait szeretné lekérdezni!");
+            Console.WriteLine("\nAdja meg, hogy mely órák forgalmi adatait szeretné lekérdezni! (Kilépés: Enter)");
 
             bool success = false;
             int ora = 0;
