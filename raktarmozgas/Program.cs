@@ -172,74 +172,81 @@ namespace raktarmozgas
             Console.WriteLine($"\nLegforgalmasabb időszakok");
 
             int[] forgalom = new int[24];
-
-            foreach (var b in mozgas)
-            {
-                forgalom[b.ora]++;
-            }
-
-            int maxForgalom = forgalom[8];
-            int iOfMaxForgalom = 8;
-
-            for (var i = 9;  i < 24; i++)
-            {
-                if (forgalom[i] > maxForgalom)
-                {
-                    maxForgalom = forgalom[i];
-                    iOfMaxForgalom = i;
-                }
-            }
-
-            Console.WriteLine($"\t{iOfMaxForgalom} óra: {maxForgalom} db. forgalom (vásárlás/eladás)");
-
             int[] vasarlas = new int[24];
-
-            foreach (var b in mozgas)
-            {
-                if(b.tipus == MozgasTipus.VASARLAS)
-                { 
-                vasarlas[b.ora]++;
-                }
-            }
-
-            int maxVasarlas = vasarlas[8];
-            int iOfMaxVasarlas = 8;
-
-            for (var i = 9; i < 24; i++)
-            {
-                if (vasarlas[i] > maxVasarlas)
-                {
-                    maxVasarlas = vasarlas[i];
-                    iOfMaxVasarlas = i;
-                }
-            }
-
-            Console.WriteLine($"\t{iOfMaxVasarlas} óra: {maxVasarlas} db. vásárlás");
-
             int[] eladas = new int[24];
 
             foreach (var b in mozgas)
             {
+                forgalom[b.ora]++;
+
+                if (b.tipus == MozgasTipus.VASARLAS)
+                {
+                    vasarlas[b.ora]++;
+                }
+
                 if (b.tipus == MozgasTipus.ELADAS)
                 {
                     eladas[b.ora]++;
                 }
             }
 
+            int maxForgalom = forgalom[8];
+            int iOfMaxForgalom = 8;
+            int maxVasarlas = vasarlas[8];
+            int iOfMaxVasarlas = 8;
             int maxEladas = eladas[8];
             int iOfMaxEladas = 8;
 
-            for (var i = 9; i < 24; i++)
+            for (var i = 9;  i <= 16; i++)
             {
+                if (forgalom[i] > maxForgalom)
+                {
+                    maxForgalom = forgalom[i];
+                    iOfMaxForgalom = i;
+                }
+
+                if (vasarlas[i] > maxVasarlas)
+                {
+                    maxVasarlas = vasarlas[i];
+                    iOfMaxVasarlas = i;
+                }
+
                 if (eladas[i] > maxEladas)
                 {
                     maxEladas = eladas[i];
                     iOfMaxEladas = i;
                 }
             }
-            while (Console.ReadKey(ConsoleKey.Enter);
 
+            Console.WriteLine($"\t{iOfMaxForgalom} óra: {maxForgalom} db. forgalom (vásárlás/eladás)");
+            Console.WriteLine($"\t{iOfMaxVasarlas} óra: {maxVasarlas} db. vásárlás");
             Console.WriteLine($"\t{iOfMaxEladas} óra: {maxEladas} db. eladás");
+
+            Console.WriteLine("Adja meg, hogy melyik óra forgalmi adatait szeretné lekérdezni!");
+
+            bool success = false;
+            int ora = 0;
+            do
+            {
+                try
+                {
+                    Console.Write("\t");
+                    success = int.TryParse(Console.ReadLine(), out ora);
+                    if (success)
+                    {
+                        Console.CursorTop -= 1;
+                        Console.WriteLine($"\t{ora} órakor {vasarlas[ora]} db. vásárlás és {eladas[ora]} db. eladás történt");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine($"Az óra csak 0-24-ig adható meg - \"{ora}\" óra nem megfelelő ({e.Message})");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+            } 
+            while (success);
+            
         }
     }
 }
