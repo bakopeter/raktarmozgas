@@ -6,8 +6,10 @@ namespace raktarmozgas
     {
         enum MozgasTipus
         {
-            VASARLAS,
-            ELADAS
+            BESZERZES,
+            ELADAS,
+            VISSZARU,
+            SELEJT
         }
         struct RaktarMozgas
         {
@@ -21,9 +23,10 @@ namespace raktarmozgas
             public string partner;
         }
 
-        struct Beszallito
+        struct Partner
         {
-            public string partner;
+            public int id;
+            public string nev;
             public MozgasTipus tipus;
             public float mennyiseg;
             public double ertek;
@@ -31,7 +34,10 @@ namespace raktarmozgas
 
         static List<RaktarMozgas> mozgas = new List<RaktarMozgas>();
 
-        static RaktarMozgas Convert(string input)
+        static List<Partner> partnerek = new List<Partner>();
+
+        /*Feldarabolja a beolvasott sorokat a megadott elválasztó jel mentén, az értékeket struktura változóiba tölti.*/
+        static RaktarMozgas ConvertRowToStruct(string input)
         {
             string[] data = input.Split(";");
 
@@ -49,6 +55,7 @@ namespace raktarmozgas
             return raktarMozgas;
         }
 
+        /*Beolvassa és eltárolja a fájl tartalmát, ellenőrzi, hogy a fájlban vannak-e hibák, illetve üres sorok, amiről üzenetet is küld.*/
         static void LoadFile(string path)
         {
             StreamReader sr = new StreamReader(path);
@@ -60,7 +67,9 @@ namespace raktarmozgas
                 try
                 {
                     row = sr.ReadLine();
-                    mozgas.Add(Convert(row));
+                    mozgas.Add(ConvertRowToStruct(row));
+                    //Console.WriteLine(row);
+                    //Console.ReadLine();
                 }
                 catch (Exception e)
                 {
@@ -71,159 +80,120 @@ namespace raktarmozgas
             }
             sr.Close();
         }
-        static void Main(string[] args)
+
+        /*Partnerek szerint csoportosítja a készletmozgást, összegzi az egy partnerre vetített áruk mennyiségét és értékét*/
+        static List<Partner> CreatePartner(List<RaktarMozgas> mozgas)
         {
-            LoadFile("raktarstat.log");
+            Partner partner = new Partner();
+            partner.id = 1;
+            partner.nev = mozgas[0].partner;
+            partner.tipus = mozgas[0].tipus;
+            partner.mennyiseg = mozgas[0].mennyiseg;
+            partner.ertek = mozgas[0].egysegAr * mozgas[0].mennyiseg;
 
-
-            Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
-
-            List<Beszallito> beszallitok = new List<Beszallito>();
-            
-            Beszallito beszallito = new Beszallito();
-            beszallito.partner = mozgas[0].partner;
-            beszallito.tipus = mozgas[0].tipus;
-            beszallito.mennyiseg = mozgas[0].mennyiseg;
-            beszallito.ertek = mozgas[0].egysegAr * mozgas[0].mennyiseg;
-
-            beszallitok.Add(beszallito);
+            partnerek.Add(partner);
 
             for (int i = 1; i < mozgas.Count; i++)
             {
                 int j = 0;
-                while (j < beszallitok.Count && beszallitok[j].partner != mozgas[i].partner)
+                while (j < partnerek.Count && partnerek[j].nev != mozgas[i].partner) j++;
+                if (j == partnerek.Count)
                 {
-                    j++;
-                }
-                if (j == beszallitok.Count)
-                {
-                    beszallito = new Beszallito();
-                    beszallito.partner = mozgas[i].partner;
-                    beszallito.tipus = mozgas[i].tipus;
-                    beszallito.mennyiseg = mozgas[i].mennyiseg;
-                    beszallito.ertek = mozgas[i].egysegAr * mozgas[i].mennyiseg;
-                    beszallitok.Add(beszallito);
+                    partner = new Partner();
+                    partner.id = j + 1;
+                    partner.nev = mozgas[i].partner;
+                    partner.tipus = mozgas[i].tipus;
+                    partner.mennyiseg = mozgas[i].mennyiseg;
+                    partner.ertek = mozgas[i].egysegAr * mozgas[i].mennyiseg;
+                    partnerek.Add(partner);
                 }
                 else
                 {
-                    beszallito = new Beszallito();
-                    beszallito.partner = mozgas[i].partner;
-                    beszallito.tipus = mozgas[i].tipus;
-                    beszallito.mennyiseg = beszallitok[j].mennyiseg + mozgas[i].mennyiseg;
-                    beszallito.ertek = beszallitok[j].ertek + mozgas[i].egysegAr * mozgas[i].mennyiseg;
-
-                    beszallitok.RemoveAt(j);
-                    beszallitok.Add(beszallito);
+                    partner = new Partner();
+                    partner.id = j;
+                    partner.nev = mozgas[i].partner;
+                    partner.tipus = mozgas[i].tipus;
+                    partner.mennyiseg = partnerek[j].mennyiseg + mozgas[i].mennyiseg;
+                    partner.ertek = partnerek[j].ertek + mozgas[i].egysegAr * mozgas[i].mennyiseg;
+                    partnerek.RemoveAt(j);
+                    partnerek.Add(partner);
                 }
             }
 
-            int k = 0;
-            do { k++;} while (k < beszallitok.Count && beszallitok[k].tipus != MozgasTipus.VASARLAS);
+            return partnerek;
+        }
+        static void Main(string[] args)
+        {
+            LoadFile("raktarstat.log");
+
+            Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
+
+            partnerek = CreatePartner(mozgas);
+
+            var maxM = partnerek.MaxBy(m => m.mennyiseg);
+            var maxE = partnerek.MaxBy(m => m.ertek);
             
-            int iOfMaxMennyiseg = k;
-            float maxMennyiseg = beszallitok[k].mennyiseg;
-            int iOfMaxErtek = k;
-            double maxErtek = beszallitok[k].ertek;
+            Console.WriteLine($"\tLegnagyobb mennyiség: \n\t\t{maxM.nev} - {maxM.mennyiseg} kg, {maxM.ertek} Ft.");
+            Console.WriteLine($"\tLegnagyobb érték: \n\t\t{maxE.nev} - {maxE.mennyiseg} kg, {maxE.ertek} Ft.");
 
-            while (k < beszallitok.Count)
+            Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
+
+            float[] osszmenny = new float[4];
+            double[] osszertek = new double[4];
+
+            foreach (var item in partnerek)
             {
-                if (beszallitok[k].tipus == MozgasTipus.VASARLAS && beszallitok[k].mennyiseg > maxMennyiseg)
-                {
-                    maxMennyiseg = beszallitok[k].mennyiseg;
-                    iOfMaxMennyiseg = k;
-                }
-
-                if (beszallitok[k].tipus == MozgasTipus.VASARLAS && beszallitok[k].ertek > maxErtek)
-                {
-                    maxErtek = beszallitok[k].ertek;
-                    iOfMaxErtek = k;
-                }
-                //Console.WriteLine($"\t{beszallitok[k].partner}: \t{beszallitok[k].mennyiseg} kg, \t{beszallitok[k].ertek} Ft.");
-                k++;
+                osszmenny[(int)item.tipus] += item.mennyiseg;
+                osszertek[(int)item.tipus] += item.ertek;
             }
 
-            Console.WriteLine($"\tLegnagyobb mennyiség: \n\t\t{beszallitok[iOfMaxMennyiseg].partner} - {beszallitok[iOfMaxMennyiseg].mennyiseg} kg, {beszallitok[iOfMaxMennyiseg].ertek} Ft.");
-            Console.WriteLine($"\tLegnagyobb érték: \n\t\t{beszallitok[iOfMaxErtek].partner} - {beszallitok[iOfMaxErtek].mennyiseg} kg, {beszallitok[iOfMaxErtek].ertek} Ft.");
+            float osszMennyB = osszmenny[(int)MozgasTipus.BESZERZES];
+            float osszMennyE = osszmenny[(int)MozgasTipus.ELADAS];
+            double osszErtekB = osszertek[(int)MozgasTipus.BESZERZES];
+            double osszErtekE = osszertek[(int)MozgasTipus.ELADAS];
 
-            double osszErtek = 0;
-
-            foreach (var item in beszallitok)
-            {
-                if (item.tipus == MozgasTipus.VASARLAS)
-                {
-                    osszErtek += item.ertek;
-                }
-            }
-
-            Console.WriteLine($"\nBeszállított termékek összértéke: \n\t{Math.Round(osszErtek)} Ft.");
-
-            osszErtek = 0;
-
-            foreach (var item in beszallitok)
-            {
-                if (item.tipus == MozgasTipus.ELADAS)
-                {
-                    osszErtek += item.ertek;
-                }
-            }
-
-            Console.WriteLine($"\nEladott termékek összértéke: \n\t{Math.Round(osszErtek)} Ft.");
+            Console.WriteLine($"\tBeszállított termékek mennyisége: {osszMennyB}, összértéke: {Math.Round(osszErtekB)} Ft.");
+            Console.WriteLine($"\tEladott termékek mennyisége: {osszMennyE}, összértéke: {Math.Round(osszErtekE)} Ft.");
 
             Console.WriteLine($"\nLegforgalmasabb időszakok");
 
             int[] forgalom = new int[24];
-            int[] vasarlas = new int[24];
-            int[] eladas = new int[24];
+            int[,] forgalmak = new int[24,4];
 
-            foreach (var b in mozgas)
+            foreach (var item in mozgas)
             {
-                forgalom[b.ora]++;
-
-                switch (b.tipus)
-                {
-                    case MozgasTipus.VASARLAS:
-                        vasarlas[b.ora]++;
-                        break;
-                    case MozgasTipus.ELADAS:
-                        eladas[b.ora]++;
-                        break;
-                }
+                forgalom[item.ora]++;
+                forgalmak[item.ora,(int)item.tipus]++;
             }
 
             int nyitas = 8;
             int zaras = 16;
 
-            int maxForgalom = forgalom[nyitas];
-            int iOfMaxForgalom = nyitas;
-            int maxVasarlas = vasarlas[nyitas];
-            int iOfMaxVasarlas = nyitas;
-            int maxEladas = eladas[nyitas];
-            int iOfMaxEladas = nyitas;
+            int maxForg = forgalom.Max();
+            int iOfMaxF = Array.IndexOf(forgalom, forgalom.Max());
+            int maxBesz = forgalmak[nyitas, (int)MozgasTipus.BESZERZES];
+            int iOfMaxB = nyitas;
+            int maxElad = forgalmak[nyitas, (int)MozgasTipus.ELADAS];
+            int iOfMaxE = nyitas;
 
             for (var i = nyitas+1;  i <= zaras; i++)
             {
-                if (forgalom[i] > maxForgalom)
+                if (forgalmak[i, (int)MozgasTipus.BESZERZES] > maxBesz)
                 {
-                    maxForgalom = forgalom[i];
-                    iOfMaxForgalom = i;
+                    maxBesz = forgalmak[i, (int)MozgasTipus.BESZERZES];
+                    iOfMaxB = i;
                 }
 
-                if (vasarlas[i] > maxVasarlas)
+                if (forgalmak[i, (int)MozgasTipus.ELADAS] > maxElad)
                 {
-                    maxVasarlas = vasarlas[i];
-                    iOfMaxVasarlas = i;
-                }
-
-                if (eladas[i] > maxEladas)
-                {
-                    maxEladas = eladas[i];
-                    iOfMaxEladas = i;
+                    maxElad = forgalmak[i, (int)MozgasTipus.ELADAS];
+                    iOfMaxE = i;
                 }
             }
 
-            Console.WriteLine($"\t{iOfMaxForgalom} óra: {maxForgalom} db. forgalom (vásárlás/eladás)");
-            Console.WriteLine($"\t{iOfMaxVasarlas} óra: {maxVasarlas} db. vásárlás");
-            Console.WriteLine($"\t{iOfMaxEladas} óra: {maxEladas} db. eladás");
+            Console.WriteLine($"\t{iOfMaxF} óra: {maxForg} db. forgalom (beszerzés/eladás)");
+            Console.WriteLine($"\t{iOfMaxB} óra: {maxBesz} db. beszerzés");
+            Console.WriteLine($"\t{iOfMaxE} óra: {maxElad} db. eladás");
 
             Console.WriteLine("\nAdja meg, hogy mely órák forgalmi adatait szeretné lekérdezni! (Kilépés: Enter)");
 
@@ -238,7 +208,8 @@ namespace raktarmozgas
                     if (success)
                     {
                         Console.CursorTop -= 1;
-                        Console.WriteLine($"\t{ora} órakor {vasarlas[ora]} db. vásárlás és {eladas[ora]} db. eladás történt");
+                        Console.WriteLine($"\t{ora} órakor {forgalmak[ora,(int)MozgasTipus.BESZERZES]} db. beszerzés és " +
+                            $"{forgalmak[ora,(int)MozgasTipus.ELADAS]} db. eladás történt");
                     }
                 }
                 catch (Exception e)
