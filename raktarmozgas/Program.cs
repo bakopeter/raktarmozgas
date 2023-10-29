@@ -122,22 +122,22 @@ namespace raktarmozgas
 
             return partnerek;
         }
-        static void Main(string[] args)
+
+        /*Kiszámolja és kiírja a legnegyobb értékben és mennyiségben szállító partner nevét.*/
+        static void MaxTransport(List<RaktarMozgas> mozgas)
         {
-            LoadFile("raktarstat.log");
-
-            Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
-
             partnerek = CreatePartner(mozgas);
 
             var maxM = partnerek.MaxBy(m => m.mennyiseg);
             var maxE = partnerek.MaxBy(m => m.ertek);
-            
+
             Console.WriteLine($"\tLegnagyobb mennyiség: \n\t\t{maxM.nev} - {maxM.mennyiseg} kg, {maxM.ertek} Ft.");
             Console.WriteLine($"\tLegnagyobb érték: \n\t\t{maxE.nev} - {maxE.mennyiseg} kg, {maxE.ertek} Ft.");
+        }
 
-            Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
-
+        /*Kiszámolja és kiírja az össz napi forgalom mennyiségét és értékét.*/
+        static void SumTradeFlow(List<Partner> partnerek)
+        {
             float[] osszmenny = new float[4];
             double[] osszertek = new double[4];
 
@@ -152,18 +152,32 @@ namespace raktarmozgas
             double osszErtekB = osszertek[(int)MozgasTipus.BESZERZES];
             double osszErtekE = osszertek[(int)MozgasTipus.ELADAS];
 
-            Console.WriteLine($"\tBeszállított termékek mennyisége: {osszMennyB}, összértéke: {Math.Round(osszErtekB)} Ft.");
-            Console.WriteLine($"\tEladott termékek mennyisége: {osszMennyE}, összértéke: {Math.Round(osszErtekE)} Ft.");
+            Console.WriteLine($"\tBeszállított termékek mennyisége: {osszMennyB} Kg, összértéke: {Math.Round(osszErtekB)} Ft.");
+            Console.WriteLine($"\tEladott termékek mennyisége: {osszMennyE} Kg, összértéke: {Math.Round(osszErtekE)} Ft.");
+        }
 
-            Console.WriteLine($"\nLegforgalmasabb időszakok");
+        /*Óránként összeszámolja ki- és bemenő forgalmakat.*/
+        static int[,] SalesPerHour(List<RaktarMozgas> mozgas)
+        {
+            int[,] forgalmak = new int[24, 4];
 
+            foreach (var item in mozgas)
+            {
+                forgalmak[item.ora, (int)item.tipus]++;
+            }
+
+            return forgalmak;
+        }
+
+        /*Kiszámolja és kiírja melyik órában volt a legnagyobb forgalom, forgalom típusa szerint is.*/
+        static void MaxTradeFlow(List<RaktarMozgas> mozgas) 
+        {
+            int[,] forgalmak = SalesPerHour(mozgas);
             int[] forgalom = new int[24];
-            int[,] forgalmak = new int[24,4];
 
             foreach (var item in mozgas)
             {
                 forgalom[item.ora]++;
-                forgalmak[item.ora,(int)item.tipus]++;
             }
 
             int nyitas = 8;
@@ -176,27 +190,32 @@ namespace raktarmozgas
             int maxElad = forgalmak[nyitas, (int)MozgasTipus.ELADAS];
             int iOfMaxE = nyitas;
 
-            for (var i = nyitas+1;  i <= zaras; i++)
+            for (var i = nyitas + 1; i <= zaras; i++)
             {
                 if (forgalmak[i, (int)MozgasTipus.BESZERZES] > maxBesz)
                 {
-                    maxBesz = forgalmak[i, (int)MozgasTipus.BESZERZES];
                     iOfMaxB = i;
+                    maxBesz = forgalmak[iOfMaxB, (int)MozgasTipus.BESZERZES];
                 }
 
                 if (forgalmak[i, (int)MozgasTipus.ELADAS] > maxElad)
                 {
-                    maxElad = forgalmak[i, (int)MozgasTipus.ELADAS];
                     iOfMaxE = i;
+                    maxElad = forgalmak[iOfMaxE, (int)MozgasTipus.ELADAS];
                 }
             }
 
             Console.WriteLine($"\t{iOfMaxF} óra: {maxForg} db. forgalom (beszerzés/eladás)");
             Console.WriteLine($"\t{iOfMaxB} óra: {maxBesz} db. beszerzés");
             Console.WriteLine($"\t{iOfMaxE} óra: {maxElad} db. eladás");
+        }
 
-            Console.WriteLine("\nAdja meg, hogy mely órák forgalmi adatait szeretné lekérdezni! (Kilépés: Enter)");
-
+        /*A felhasználótól bekért időpontok szerint kiszámolja és kiírja, hogy az adott órákban mennyi beszerzés és eladás volt. Addig 
+         kérhetjük az időpontokat, amíg egy "üres" Enter-t, vagy nem numerikus billentyűt nem nyomunk. Ha 24 óránál nagyobb időpontot 
+        írunk be, rendszerfigyelmeztetést kapunk, ami után folytathatjuk az órák szerinti lekérdezéseket.*/
+        static void HourlySales(List<RaktarMozgas> mozgas)
+        {
+            int[,] forgalmak = SalesPerHour(mozgas);
             bool success = false;
             int ora = 0;
             do
@@ -208,8 +227,8 @@ namespace raktarmozgas
                     if (success)
                     {
                         Console.CursorTop -= 1;
-                        Console.WriteLine($"\t{ora} órakor {forgalmak[ora,(int)MozgasTipus.BESZERZES]} db. beszerzés és " +
-                            $"{forgalmak[ora,(int)MozgasTipus.ELADAS]} db. eladás történt");
+                        Console.WriteLine($"\t{ora} órakor {forgalmak[ora, (int)MozgasTipus.BESZERZES]} db. beszerzés és " +
+                            $"{forgalmak[ora, (int)MozgasTipus.ELADAS]} db. eladás történt");
                     }
                 }
                 catch (Exception e)
@@ -218,8 +237,28 @@ namespace raktarmozgas
                     Console.WriteLine($"Az óra csak 0-24-ig adható meg - \"{ora}\" óra nem megfelelő ({e.Message})");
                     Console.ForegroundColor = ConsoleColor.White;
                 }
-            } 
+            }
             while (success);
+        }
+        static void Main(string[] args)
+        {
+            LoadFile("raktarstat.log");
+
+            Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
+
+            MaxTransport(mozgas);
+
+            Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
+
+            SumTradeFlow(partnerek);
+
+            Console.WriteLine($"\nNapi legforgalmasabb időszakok órák szerint");
+
+            MaxTradeFlow(mozgas);
+
+            Console.WriteLine("\nAdja meg, hogy mely órák forgalmi adatait szeretné lekérdezni! (Kilépés: Enter)");
+
+            HourlySales(mozgas);
             
         }
     }
