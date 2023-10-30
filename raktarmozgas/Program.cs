@@ -152,8 +152,46 @@ namespace raktarmozgas
             double osszErtekB = osszertek[(int)MozgasTipus.BESZERZES];
             double osszErtekE = osszertek[(int)MozgasTipus.ELADAS];
 
-            Console.WriteLine($"\tBeszállított termékek mennyisége: {osszMennyB} Kg, összértéke: {Math.Round(osszErtekB)} Ft.");
-            Console.WriteLine($"\tEladott termékek mennyisége: {osszMennyE} Kg, összértéke: {Math.Round(osszErtekE)} Ft.");
+            Console.WriteLine($"\tBeszállított termékek mennyisége: {osszMennyB} kg, összértéke: {Math.Round(osszErtekB)} Ft.");
+            Console.WriteLine($"\tEladott termékek mennyisége: {osszMennyE} kg, összértéke: {Math.Round(osszErtekE)} Ft.");
+        }
+
+        /*Kilistázz azon termékek mennyiségeit, melyek készlete 50% alá esett.*/
+        static void ProductsToOrder(List<RaktarMozgas> mozgas)
+        {
+            string[] termekek = new string[30];
+            float[,] mennyisegek = new float[30,4];
+            int i = 0;
+
+            foreach (var item in mozgas)
+            {
+                if (!termekek.Contains(item.termek))
+                {
+                    termekek[i] = item.termek;
+                    i++;
+                }
+            }
+
+            foreach (var termek in mozgas)
+            {
+                int j = 0;
+
+                while (j < i && !(termek.termek == termekek[j])) j++;
+
+                mennyisegek[j,(int)termek.tipus] += termek.mennyiseg;
+            }
+
+            for (int k = 0; k < i; k++)
+            {
+                float beszerzes = mennyisegek[k, (int)MozgasTipus.BESZERZES];
+                float eladas = mennyisegek[k, (int)MozgasTipus.ELADAS];
+                float keszlet = beszerzes - eladas;
+
+                if (keszlet < eladas)
+                {
+                    Console.WriteLine($"\t{termekek[k]}: {beszerzes} - {eladas} = {keszlet} kg.");
+                }
+            }
         }
 
         /*Óránként összeszámolja ki- és bemenő forgalmakat.*/
@@ -242,6 +280,8 @@ namespace raktarmozgas
         }
         static void Main(string[] args)
         {
+            Console.Title = "Hentesüzlet napi készletmozgásai";
+
             LoadFile("raktarstat.log");
 
             Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
@@ -251,6 +291,10 @@ namespace raktarmozgas
             Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
 
             SumTradeFlow(partnerek);
+
+            Console.WriteLine("\nTermékek, melyek készlete 50% alá esett");
+
+            ProductsToOrder(mozgas);
 
             Console.WriteLine($"\nNapi legforgalmasabb időszakok órák szerint");
 
