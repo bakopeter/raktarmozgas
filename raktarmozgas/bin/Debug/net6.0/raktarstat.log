@@ -1,18 +1,18 @@
 id;beerkezes;termek;mennyiseg;egysegar;mozgas;partner
-1;08:00;sertés dagadó;25;1300;BESZERZES;Röfi Hús Kft.
-2;08:03;csirke farhát;2;800;ELADAS;
+1;08:00;sertésdagadó;25;1300;BESZERZES;Röfi Hús Kft.
+2;08:03;csirkefarhát;2;800;ELADAS;
 
-3;08:08;sertés dagadó;1,5;1800;ELADAS;
-4;08:08;csirke farhát;2,5;800;ELADAS;
-5;08:11;sertés dagadó;2,5;1800;ELADAS;
-6;08:25;pulyka szárny;25;1200;BESZERZES;Püspökfalat Rt.
-7;08:28;pulyka szárny;2,5;1500;ELADAS;
-8;08:28;sertés dagadó;1;1800;ELADAS;
-9;08:28;csirke farhát;1;800;ELADAS;
-10;08:30;pulyka szárny;4,5;1500
+3;08:08;sertésdagadó;1,5;1800;ELADAS;
+4;08:08;csirkefarhát;2,5;800;ELADAS;
+5;08:11;sertésdagadó;2,5;1800;ELADAS;
+6;08:25;pulykaszárny;25;1200;BESZERZES;Püspökfalat Rt.
+7;08:28;pulykaszárny;2,5;1500;ELADAS;
+8;08:28;sertésdagadó;1;1800;ELADAS;
+9;08:28;csirkefarhát;1;800;ELADAS;
+10;08:30;pulykaszárny;4,5;1500
 11;09:05;csirkemell;17;1400;BESZERZES;Püspökfalat Rt.
-12;09:08;sertés dagadó;3;1800;ELADAS;
-13;09:08;pulyka szárny;1,5;1500;ELADAS;
+12;09:08;sertésdagadó;3;1800;ELADAS;
+13;09:08;pulykaszárny;1,5;1500;ELADAS;
 14;09:08;csirkemell;3,7;1700;ELADAS;
 15;09:12;csirkemell;3,2;1700;ELADAS;
 
@@ -22,22 +22,22 @@ id;beerkezes;termek;mennyiseg;egysegar;mozgas;partner
 19;09:49;marhacsont;2,5;1000;ELADAS;
 20;09:58;csirkemell;1,4;1700;ELADAS;
 21;09:58;marhacsont;3,5;1000;ELADAS;
-22;10:23;csirke farhát;20;500;BESZERZES;Püspökfalat Rt.
+22;10:23;csirkefarhát;20;500;BESZERZES;Püspökfalat Rt.
 23;10:25;csirkemell;4,4;1700;ELADAS;
-24;10:25;csirke farhát;1;800;ELADAS;
-25;10:25;pulyka szárny;1,5;1500;ELADAS;
-26;10:28;csirke farhát;1,3;800;ELADAS;
+24;10:25;csirkefarhát;1;800;ELADAS;
+25;10:25;pulykaszárny;1,5;1500;ELADAS;
+26;10:28;csirkefarhát;1,3;800;ELADAS;
 27;10:28;marhacsont;1,5;1000;ELADAS;
-28;10:30;csirke farhát;1;800;ELADAS;
-29;10:30;pulyka szárny;2,5;1500;ELADAS;
-30;10:40;csirke farhát;1,2;800;ELADAS;
-31;10:40;pulyka szárny;3,5;1500;ELADAS;
+28;10:30;csirkefarhát;1;800;ELADAS;
+29;10:30;pulykaszárny;2,5;1500;ELADAS;
+30;10:40;csirkefarhát;1,2;800;ELADAS;
+31;10:40;pulykaszárny;3,5;1500;ELADAS;
 32;11:56;sertéslapocka;25;1970;BESZERZES;Röfi Hús Kft.
-33;11:59;csirke farhát;0,8;800;ELADAS;
-34;10:59;pulyka szárny;1,3;1500;ELADAS;
+33;11:59;csirkefarhát;0,8;800;ELADAS;
+34;10:59;pulykaszárny;1,3;1500;ELADAS;
 35;11:59;marhacsont;2,3;1000;ELADAS;
 36;13:23;egész csirke;26;1200;BESZERZES;Püspökfalat Rt.
 37;14:02;sertésoldalas;26;2100;BESZERZES;Röfi Hús Kft.
-38;15:40;pulyka szárny;3,5;1500;ELADAS;
-39;15:50;pulyka szárny;4,2;1500;ELADAS;
+38;15:40;pulykaszárny;3,5;1500;ELADAS;
+39;15:50;pulykaszárny;4,2;1500;ELADAS;
 40;15:50;marhacsont;2,3;1000;ELADAS;
