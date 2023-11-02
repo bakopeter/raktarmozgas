@@ -299,6 +299,8 @@ namespace raktarmozgas
         {
             int k = 0;
 
+            Console.WriteLine("\n\tTermék\t\tRend.\tEladás\tKészlet");
+
             while (k < termekek.Length && termekek[k]is not null)
             {
                 float beszerzes = mennyisegek[k, (int)MozgasTipus.BESZERZES];
@@ -335,6 +337,8 @@ namespace raktarmozgas
             double osszKiadas = 0;
             double osszBevetel = 0;
             double osszProfit = 0;
+
+            Console.WriteLine("\n\tTermékeladás\tBevétel\tKiadás\tHaszon");
 
             int k = 0;
             while (k < termekek.Length && termekek[k] is not null)
@@ -443,17 +447,17 @@ namespace raktarmozgas
             Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
             SumTradeFlow(Partner.partnerek);
 
-            Console.WriteLine("\n<50%\tTermék\t\tRend.\tEladás\tKészlet");
+            Console.WriteLine("\nA készlet 50%-a alá eső termékek, melyek automatikusan hozzáadódnak a rendelési listához");
             ProductsToOrder(OutOfStock(RaktarMozgas.mozgas), GetProductAmounts(RaktarMozgas.mozgas));
 
-            Console.WriteLine("\nFájlba kiírt megrendelés ellenőrzése");
+            Console.WriteLine("\nFájlba kiírt és onnan visszaolvasott rendelési lista ellenőrzése");
             PrintOrderList(TermekRendeles.CreateOrderList(RaktarMozgas.mozgas), "rendeles.txt");
             LoadFile("rendeles.txt", "display");
 
-            Console.WriteLine("\nNapi\tTermékeladás\tBevétel\tKiadás\tHaszon");
+            Console.WriteLine("\nA napi termékeladásból származó üzleti haszon (bevétel-kiadás)");
             DailyProfit();
 
-            Console.WriteLine($"\nNapi legforgalmasabb időszakok órák szerint");
+            Console.WriteLine($"\nNapi legforgalmasabb időszakok órák szerint (Lehetnek a megjelenítettel azonos forgalmú időszakok!)");
             MaxTradeFlow(SalesPerHour(RaktarMozgas.mozgas), 8, 16);
 
             Console.WriteLine("\nAdja meg, hogy mely órák forgalmi adatait szeretné lekérdezni! (Kilépés: Enter)");
