@@ -30,7 +30,7 @@ namespace raktarmozgas
             public double EgysegAr { get => egysegAr; }
             public MozgasTipus Tipus { get => tipus; }
 
-            public static List<RaktarMozgas> mozgas = new List<RaktarMozgas>();
+            public static List<RaktarMozgas> mozgas = new();
 
             /*Feldarabolja a beolvasott sorokat a megadott elválasztó jel mentén, az értékeket a struktura változóiba tölti.*/
             public static RaktarMozgas CreateRaktarMozgas(string input)
@@ -38,7 +38,7 @@ namespace raktarmozgas
                 string[] data = input.Split(";");
                 string[] ido = data[1].Split(":");
 
-                RaktarMozgas raktarMozgas = new RaktarMozgas
+                RaktarMozgas raktarMozgas = new()
                 {
                     id = byte.Parse(data[0]),
                     ora = byte.Parse(ido[0]),
@@ -147,13 +147,15 @@ namespace raktarmozgas
             /*Partnerek szerint csoportosítja a készletmozgást, összegzi az egy partnerre vetített áruk mennyiségét és értékét*/
             public static List<Partner> CreatePartner(List<RaktarMozgas> mozgas)
             {
-                Partner partner = new Partner();
-                partner.id = 1;
-                partner.nev = RaktarMozgas.mozgas[0].partner;
-                partner.tipus = RaktarMozgas.mozgas[0].Tipus;
-                partner.mennyiseg = RaktarMozgas.mozgas[0].Mennyiseg;
-                partner.ertek = RaktarMozgas.mozgas[0].EgysegAr * mozgas[0].Mennyiseg;
-
+                Partner partner = new Partner
+                {
+                    id = 1,
+                    nev = RaktarMozgas.mozgas[0].partner,
+                    tipus = RaktarMozgas.mozgas[0].Tipus,
+                    mennyiseg = RaktarMozgas.mozgas[0].Mennyiseg,
+                    ertek = RaktarMozgas.mozgas[0].EgysegAr * mozgas[0].Mennyiseg
+                };
+                
                 partnerek.Add(partner);
 
                 for (int i = 1; i < mozgas.Count; i++)
@@ -162,22 +164,28 @@ namespace raktarmozgas
                     while (j < partnerek.Count && Partner.partnerek[j].nev != RaktarMozgas.mozgas[i].partner) j++;
                     if (j == partnerek.Count)
                     {
-                        partner = new Partner();
-                        partner.id = j + 1;
-                        partner.nev = RaktarMozgas.mozgas[i].partner;
-                        partner.tipus = RaktarMozgas.mozgas[i].Tipus;
-                        partner.mennyiseg = RaktarMozgas.mozgas[i].Mennyiseg;
-                        partner.ertek = RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg;
+                        partner = new Partner
+                        {
+                            id = j + 1,
+                            nev = RaktarMozgas.mozgas[i].partner,
+                            tipus = RaktarMozgas.mozgas[i].Tipus,
+                            mennyiseg = RaktarMozgas.mozgas[i].Mennyiseg,
+                            ertek = RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg
+                        };
+                        
                         partnerek.Add(partner);
                     }
                     else
                     {
-                        partner = new Partner();
-                        partner.id = j;
-                        partner.nev = RaktarMozgas.mozgas[i].partner;
-                        partner.tipus = RaktarMozgas.mozgas[i].Tipus;
-                        partner.mennyiseg = Partner.partnerek[j].mennyiseg + RaktarMozgas.mozgas[i].Mennyiseg;
-                        partner.ertek = Partner.partnerek[j].ertek + RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg;
+                        partner = new Partner
+                        {
+                            id = j,
+                            nev = RaktarMozgas.mozgas[i].partner,
+                            tipus = RaktarMozgas.mozgas[i].Tipus,
+                            mennyiseg = Partner.partnerek[j].mennyiseg + RaktarMozgas.mozgas[i].Mennyiseg,
+                            ertek = Partner.partnerek[j].ertek + RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg
+                        };
+                        
                         partnerek.RemoveAt(j);
                         partnerek.Add(partner);
                     }
