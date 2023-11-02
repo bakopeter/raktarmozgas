@@ -125,7 +125,7 @@ namespace raktarmozgas
             {
                 int[,] forgalmak = new int[24, mozgasFajta];
 
-                foreach (var item in RaktarMozgas.mozgas)
+                foreach (var item in mozgas)
                 {
                     forgalmak[item.ora, (int)item.tipus]++;
                 }
@@ -142,12 +142,12 @@ namespace raktarmozgas
             public float mennyiseg;
             public double ertek;
 
-            public static List<Partner> partnerek = new List<Partner>();
+            public static List<Partner> partnerek = new();
 
             /*Partnerek szerint csoportosítja a készletmozgást, összegzi az egy partnerre vetített áruk mennyiségét és értékét*/
             public static List<Partner> CreatePartner(List<RaktarMozgas> mozgas)
             {
-                Partner partner = new Partner
+                Partner partner = new()
                 {
                     id = 1,
                     nev = RaktarMozgas.mozgas[0].partner,
@@ -204,7 +204,7 @@ namespace raktarmozgas
             public float mennyiseg;
             public string partner;
 
-            public static List<TermekRendeles> rendeles = new List<TermekRendeles>();
+            public static List<TermekRendeles> rendeles = new();
 
             /*Összegzi a kifogyó termékeket és létrehozza a rendelési listát a megfelelő beszállítók hozzárendelésével*/
             public static List<TermekRendeles> CreateOrderList(List<RaktarMozgas> mozgas)
@@ -216,7 +216,7 @@ namespace raktarmozgas
                 int i = 0;
                 while (i < termekek.Length && termekek[i] is not null)
                 {
-                    TermekRendeles termekRendeles = new TermekRendeles
+                    TermekRendeles termekRendeles = new()
                     {
                         id = i + 1,
                         ora = 16,
