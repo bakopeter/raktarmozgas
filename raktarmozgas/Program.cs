@@ -7,10 +7,6 @@ namespace raktarmozgas
         static int termekFajta = 10; //Termékféleségek aktuális darabszáma
         static int mozgasFajta = 4; //Készletmozgás lehetséges típusai
 
-        static List<RaktarMozgas> mozgas = new List<RaktarMozgas>();
-        static List<Partner> partnerek = new List<Partner>();
-        static List<TermekRendeles> rendeles = new List<TermekRendeles>();
-
         enum MozgasTipus
         {
             BESZERZES,
@@ -28,6 +24,8 @@ namespace raktarmozgas
             public double egysegAr;
             public MozgasTipus tipus;
             public string partner;
+
+            public static List<RaktarMozgas> mozgas = new List<RaktarMozgas>();
 
             /*Feldarabolja a beolvasott sorokat a megadott elválasztó jel mentén, az értékeket a struktura változóiba tölti.*/
             public static RaktarMozgas CreateRaktarMozgas(string input)
@@ -57,46 +55,48 @@ namespace raktarmozgas
             public float mennyiseg;
             public double ertek;
 
+            public static List<Partner> partnerek = new List<Partner>();
+
             /*Partnerek szerint csoportosítja a készletmozgást, összegzi az egy partnerre vetített áruk mennyiségét és értékét*/
             public static List<Partner> CreatePartner(List<RaktarMozgas> mozgas)
             {
                 Partner partner = new Partner();
                 partner.id = 1;
-                partner.nev = mozgas[0].partner;
-                partner.tipus = mozgas[0].tipus;
-                partner.mennyiseg = mozgas[0].mennyiseg;
-                partner.ertek = mozgas[0].egysegAr * mozgas[0].mennyiseg;
+                partner.nev = RaktarMozgas.mozgas[0].partner;
+                partner.tipus = RaktarMozgas.mozgas[0].tipus;
+                partner.mennyiseg = RaktarMozgas.mozgas[0].mennyiseg;
+                partner.ertek = RaktarMozgas.mozgas[0].egysegAr * mozgas[0].mennyiseg;
 
                 partnerek.Add(partner);
 
                 for (int i = 1; i < mozgas.Count; i++)
                 {
                     int j = 0;
-                    while (j < partnerek.Count && partnerek[j].nev != mozgas[i].partner) j++;
+                    while (j < partnerek.Count && Partner.partnerek[j].nev != RaktarMozgas.mozgas[i].partner) j++;
                     if (j == partnerek.Count)
                     {
                         partner = new Partner();
                         partner.id = j + 1;
-                        partner.nev = mozgas[i].partner;
-                        partner.tipus = mozgas[i].tipus;
-                        partner.mennyiseg = mozgas[i].mennyiseg;
-                        partner.ertek = mozgas[i].egysegAr * mozgas[i].mennyiseg;
+                        partner.nev = RaktarMozgas.mozgas[i].partner;
+                        partner.tipus = RaktarMozgas.mozgas[i].tipus;
+                        partner.mennyiseg = RaktarMozgas.mozgas[i].mennyiseg;
+                        partner.ertek = RaktarMozgas.mozgas[i].egysegAr * mozgas[i].mennyiseg;
                         partnerek.Add(partner);
                     }
                     else
                     {
                         partner = new Partner();
                         partner.id = j;
-                        partner.nev = mozgas[i].partner;
-                        partner.tipus = mozgas[i].tipus;
-                        partner.mennyiseg = partnerek[j].mennyiseg + mozgas[i].mennyiseg;
-                        partner.ertek = partnerek[j].ertek + mozgas[i].egysegAr * mozgas[i].mennyiseg;
+                        partner.nev = RaktarMozgas.mozgas[i].partner;
+                        partner.tipus = RaktarMozgas.mozgas[i].tipus;
+                        partner.mennyiseg = Partner.partnerek[j].mennyiseg + RaktarMozgas.mozgas[i].mennyiseg;
+                        partner.ertek = Partner.partnerek[j].ertek + RaktarMozgas.mozgas[i].egysegAr * mozgas[i].mennyiseg;
                         partnerek.RemoveAt(j);
                         partnerek.Add(partner);
                     }
                 }
 
-                return partnerek;
+                return Partner.partnerek;
             }
         }
 
@@ -108,6 +108,8 @@ namespace raktarmozgas
             public string termek;
             public float mennyiseg;
             public string partner;
+
+            public static List<TermekRendeles> rendeles = new List<TermekRendeles>();
 
             /*Összegzi a kifogyó termékeket és létrehozza a rendelési listát a megfelelő beszállítók hozzárendelésével*/
             public static List<TermekRendeles> CreateOrderList(List<RaktarMozgas> mozgas)
@@ -154,7 +156,7 @@ namespace raktarmozgas
                     switch (output)
                     {
                         case "raktarMozgas":
-                            mozgas.Add(RaktarMozgas.CreateRaktarMozgas(row));
+                            RaktarMozgas.mozgas.Add(RaktarMozgas.CreateRaktarMozgas(row));
                             break;
                         case "display":
                             row = row.Replace(';', '\t');
@@ -175,10 +177,10 @@ namespace raktarmozgas
         /*Kiszámolja és kiírja a legnagyobb értékben és mennyiségben szállító partner nevét.*/
         static void MaxTransport(List<RaktarMozgas> mozgas)
         {
-            partnerek = Partner.CreatePartner(mozgas);
+            Partner.partnerek = Partner.CreatePartner(mozgas);
 
-            var maxM = partnerek.MaxBy(m => m.mennyiseg);
-            var maxE = partnerek.MaxBy(m => m.ertek);
+            var maxM = Partner.partnerek.MaxBy(m => m.mennyiseg);
+            var maxE = Partner.partnerek.MaxBy(m => m.ertek);
 
             Console.WriteLine($"\tLegnagyobb mennyiség:\t{maxM.nev}\t{maxM.mennyiseg} kg\t{maxM.ertek} Ft.");
             Console.WriteLine($"\tLegnagyobb érték:\t{maxE.nev}\t{maxE.mennyiseg} kg\t{maxE.ertek} Ft.");
@@ -190,7 +192,7 @@ namespace raktarmozgas
             float[] osszmenny = new float[4];
             double[] osszertek = new double[4];
 
-            foreach (var item in partnerek)
+            foreach (var item in Partner.partnerek)
             {
                 osszmenny[(int)item.tipus] += item.mennyiseg;
                 osszertek[(int)item.tipus] += item.ertek;
@@ -326,9 +328,9 @@ namespace raktarmozgas
         /*Termékenként összegzi a napi bevételt és kiadást, majd ebből kiszámolja és kiírja a profitot.*/
         static void DailyProfit()
         {
-            string[] termekek = GetProducts(mozgas);
-            float[,] mennyisegek = GetProductAmounts(mozgas);
-            double[,] termekArak = GetProductPrices(mozgas);
+            string[] termekek = GetProducts(RaktarMozgas.mozgas);
+            float[,] mennyisegek = GetProductAmounts(RaktarMozgas.mozgas);
+            double[,] termekArak = GetProductPrices(RaktarMozgas.mozgas);
 
             double osszKiadas = 0;
             double osszBevetel = 0;
@@ -356,7 +358,7 @@ namespace raktarmozgas
         {
             int[,] forgalmak = new int[24, mozgasFajta];
 
-            foreach (var item in mozgas)
+            foreach (var item in RaktarMozgas.mozgas)
             {
                 forgalmak[item.ora, (int)item.tipus]++;
             }
@@ -436,26 +438,26 @@ namespace raktarmozgas
             LoadFile("raktarstat.log", "raktarMozgas");
 
             Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
-            MaxTransport(mozgas);
+            MaxTransport(RaktarMozgas.mozgas);
 
             Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
-            SumTradeFlow(partnerek);
+            SumTradeFlow(Partner.partnerek);
 
             Console.WriteLine("\n<50%\tTermék\t\tRend.\tEladás\tKészlet");
-            ProductsToOrder(OutOfStock(mozgas), GetProductAmounts(mozgas));
+            ProductsToOrder(OutOfStock(RaktarMozgas.mozgas), GetProductAmounts(RaktarMozgas.mozgas));
 
             Console.WriteLine("\nFájlba kiírt megrendelés ellenőrzése");
-            PrintOrderList(TermekRendeles.CreateOrderList(mozgas), "rendeles.txt");
+            PrintOrderList(TermekRendeles.CreateOrderList(RaktarMozgas.mozgas), "rendeles.txt");
             LoadFile("rendeles.txt", "display");
 
             Console.WriteLine("\nNapi\tTermékeladás\tBevétel\tKiadás\tHaszon");
             DailyProfit();
 
             Console.WriteLine($"\nNapi legforgalmasabb időszakok órák szerint");
-            MaxTradeFlow(SalesPerHour(mozgas), 8, 16);
+            MaxTradeFlow(SalesPerHour(RaktarMozgas.mozgas), 8, 16);
 
             Console.WriteLine("\nAdja meg, hogy mely órák forgalmi adatait szeretné lekérdezni! (Kilépés: Enter)");
-            HourlySales(SalesPerHour(mozgas));
+            HourlySales(SalesPerHour(RaktarMozgas.mozgas));
         }
     }
 }
