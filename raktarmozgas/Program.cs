@@ -136,7 +136,7 @@ namespace raktarmozgas
 
         struct Partner
         {
-            public int id;
+            int id;
             public string nev;
             public MozgasTipus tipus;
             public float mennyiseg;
@@ -161,7 +161,7 @@ namespace raktarmozgas
                 for (int i = 1; i < mozgas.Count; i++)
                 {
                     int j = 0;
-                    while (j < partnerek.Count && Partner.partnerek[j].nev != RaktarMozgas.mozgas[i].partner) j++;
+                    while (j < partnerek.Count && partnerek[j].nev != RaktarMozgas.mozgas[i].partner) j++;
                     if (j == partnerek.Count)
                     {
                         partner = new Partner
@@ -182,8 +182,8 @@ namespace raktarmozgas
                             id = j,
                             nev = RaktarMozgas.mozgas[i].partner,
                             tipus = RaktarMozgas.mozgas[i].Tipus,
-                            mennyiseg = Partner.partnerek[j].mennyiseg + RaktarMozgas.mozgas[i].Mennyiseg,
-                            ertek = Partner.partnerek[j].ertek + RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg
+                            mennyiseg = partnerek[j].mennyiseg + RaktarMozgas.mozgas[i].Mennyiseg,
+                            ertek = partnerek[j].ertek + RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg
                         };
                         
                         partnerek.RemoveAt(j);
@@ -191,7 +191,7 @@ namespace raktarmozgas
                     }
                 }
 
-                return Partner.partnerek;
+                return partnerek;
             }
         }
 
@@ -288,7 +288,7 @@ namespace raktarmozgas
             float[] osszmenny = new float[4];
             double[] osszertek = new double[4];
 
-            foreach (var item in Partner.partnerek)
+            foreach (var item in partnerek)
             {
                 osszmenny[(int)item.tipus] += item.mennyiseg;
                 osszertek[(int)item.tipus] += item.ertek;
@@ -426,8 +426,8 @@ namespace raktarmozgas
         }
 
         /*A felhasználótól bekért időpontok szerint kiszámolja és kiírja, hogy az adott órákban mennyi beszerzés és eladás volt. Addig 
-         kérhetjük az időpontokat, amíg egy "üres" Enter-t, vagy nem numerikus billentyűt nem nyomunk. Ha 24 óránál nagyobb időpontot 
-        írunk be, rendszerfigyelmeztetést kapunk, ami után folytathatjuk az órák szerinti lekérdezéseket.*/
+         kérhetjük az időpontokat, amíg egy "üres" Entert, vagy nem numerikus billentyűt és Entert nem nyomunk. Ha 24 óránál nagyobb 
+        időpontot írunk be, rendszerfigyelmeztetést kapunk, ami után folytathatjuk az órák szerinti lekérdezéseket.*/
         static void HourlySales(int[,] forgalmak)
         {
             bool success = false;
