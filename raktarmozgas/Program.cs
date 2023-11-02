@@ -19,11 +19,16 @@ namespace raktarmozgas
             byte id;
             byte ora;
             byte perc;
-            private string termek;
-            public float mennyiseg;
-            public double egysegAr;
-            public MozgasTipus tipus;
+            string termek;
+            float mennyiseg;
+            double egysegAr;
+            MozgasTipus tipus;
             public string partner;
+
+            public string Termek { get => termek; }
+            public float Mennyiseg {  get => mennyiseg; }
+            public double EgysegAr { get => egysegAr; }
+            public MozgasTipus Tipus { get => tipus; }
 
             public static List<RaktarMozgas> mozgas = new List<RaktarMozgas>();
 
@@ -31,17 +36,19 @@ namespace raktarmozgas
             public static RaktarMozgas CreateRaktarMozgas(string input)
             {
                 string[] data = input.Split(";");
-
-                RaktarMozgas raktarMozgas = new RaktarMozgas();
-                raktarMozgas.id = byte.Parse(data[0]);
                 string[] ido = data[1].Split(":");
-                raktarMozgas.ora = byte.Parse(ido[0]);
-                raktarMozgas.perc = byte.Parse(ido[1]);
-                raktarMozgas.termek = data[2];
-                raktarMozgas.mennyiseg = float.Parse(data[3]);
-                raktarMozgas.egysegAr = double.Parse(data[4]);
-                raktarMozgas.tipus = (MozgasTipus)Enum.Parse(typeof(MozgasTipus), data[5]);
-                raktarMozgas.partner = data[6];
+
+                RaktarMozgas raktarMozgas = new RaktarMozgas
+                {
+                    id = byte.Parse(data[0]),
+                    ora = byte.Parse(ido[0]),
+                    perc = byte.Parse(ido[1]),
+                    termek = data[2],
+                    mennyiseg = float.Parse(data[3]),
+                    egysegAr = double.Parse(data[4]),
+                    tipus = (MozgasTipus)Enum.Parse(typeof(MozgasTipus), data[5]),
+                    partner = data[6]
+                };
 
                 return raktarMozgas;
             }
@@ -143,9 +150,9 @@ namespace raktarmozgas
                 Partner partner = new Partner();
                 partner.id = 1;
                 partner.nev = RaktarMozgas.mozgas[0].partner;
-                partner.tipus = RaktarMozgas.mozgas[0].tipus;
-                partner.mennyiseg = RaktarMozgas.mozgas[0].mennyiseg;
-                partner.ertek = RaktarMozgas.mozgas[0].egysegAr * mozgas[0].mennyiseg;
+                partner.tipus = RaktarMozgas.mozgas[0].Tipus;
+                partner.mennyiseg = RaktarMozgas.mozgas[0].Mennyiseg;
+                partner.ertek = RaktarMozgas.mozgas[0].EgysegAr * mozgas[0].Mennyiseg;
 
                 partnerek.Add(partner);
 
@@ -158,9 +165,9 @@ namespace raktarmozgas
                         partner = new Partner();
                         partner.id = j + 1;
                         partner.nev = RaktarMozgas.mozgas[i].partner;
-                        partner.tipus = RaktarMozgas.mozgas[i].tipus;
-                        partner.mennyiseg = RaktarMozgas.mozgas[i].mennyiseg;
-                        partner.ertek = RaktarMozgas.mozgas[i].egysegAr * mozgas[i].mennyiseg;
+                        partner.tipus = RaktarMozgas.mozgas[i].Tipus;
+                        partner.mennyiseg = RaktarMozgas.mozgas[i].Mennyiseg;
+                        partner.ertek = RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg;
                         partnerek.Add(partner);
                     }
                     else
@@ -168,9 +175,9 @@ namespace raktarmozgas
                         partner = new Partner();
                         partner.id = j;
                         partner.nev = RaktarMozgas.mozgas[i].partner;
-                        partner.tipus = RaktarMozgas.mozgas[i].tipus;
-                        partner.mennyiseg = Partner.partnerek[j].mennyiseg + RaktarMozgas.mozgas[i].mennyiseg;
-                        partner.ertek = Partner.partnerek[j].ertek + RaktarMozgas.mozgas[i].egysegAr * mozgas[i].mennyiseg;
+                        partner.tipus = RaktarMozgas.mozgas[i].Tipus;
+                        partner.mennyiseg = Partner.partnerek[j].mennyiseg + RaktarMozgas.mozgas[i].Mennyiseg;
+                        partner.ertek = Partner.partnerek[j].ertek + RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg;
                         partnerek.RemoveAt(j);
                         partnerek.Add(partner);
                     }
@@ -201,14 +208,15 @@ namespace raktarmozgas
                 int i = 0;
                 while (i < termekek.Length && termekek[i] is not null)
                 {
-                    TermekRendeles termekRendeles = new TermekRendeles();
-                    termekRendeles.id = i + 1;
-                    termekRendeles.ora = 16;
-                    termekRendeles.perc = 00;
-                    termekRendeles.termek = termekek[i];
-                    termekRendeles.mennyiseg = mennyisegek[i, (int)MozgasTipus.BESZERZES];
-                    termekRendeles.partner = beszallitok[i, (int)MozgasTipus.BESZERZES];
-
+                    TermekRendeles termekRendeles = new TermekRendeles
+                    {
+                        id = i + 1,
+                        ora = 16,
+                        perc = 00,
+                        termek = termekek[i],
+                        mennyiseg = mennyisegek[i, (int)MozgasTipus.BESZERZES],
+                        partner = beszallitok[i, (int)MozgasTipus.BESZERZES]
+                    };
                     rendeles.Add(termekRendeles);
                     i++;
                 }
