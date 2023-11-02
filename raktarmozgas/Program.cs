@@ -4,8 +4,13 @@ namespace raktarmozgas
 {
     internal class Program
     {
-        static int termekFajta = 10;
-        static int mozgasFajta = 4;
+        static int termekFajta = 10; //Termékféleségek aktuális darabszáma
+        static int mozgasFajta = 4; //Készletmozgás lehetséges típusai
+
+        static List<RaktarMozgas> mozgas = new List<RaktarMozgas>();
+        static List<Partner> partnerek = new List<Partner>();
+        static List<TermekRendeles> rendeles = new List<TermekRendeles>();
+
         enum MozgasTipus
         {
             BESZERZES,
@@ -23,6 +28,25 @@ namespace raktarmozgas
             public double egysegAr;
             public MozgasTipus tipus;
             public string partner;
+
+            /*Feldarabolja a beolvasott sorokat a megadott elválasztó jel mentén, az értékeket a struktura változóiba tölti.*/
+            public static RaktarMozgas CreateRaktarMozgas(string input)
+            {
+                string[] data = input.Split(";");
+
+                RaktarMozgas raktarMozgas = new RaktarMozgas();
+                raktarMozgas.id = byte.Parse(data[0]);
+                string[] ido = data[1].Split(":");
+                raktarMozgas.ora = byte.Parse(ido[0]);
+                raktarMozgas.perc = byte.Parse(ido[1]);
+                raktarMozgas.termek = data[2];
+                raktarMozgas.mennyiseg = float.Parse(data[3]);
+                raktarMozgas.egysegAr = double.Parse(data[4]);
+                raktarMozgas.tipus = (MozgasTipus)Enum.Parse(typeof(MozgasTipus), data[5]);
+                raktarMozgas.partner = data[6];
+
+                return raktarMozgas;
+            }
         }
 
         struct Partner
@@ -32,6 +56,48 @@ namespace raktarmozgas
             public MozgasTipus tipus;
             public float mennyiseg;
             public double ertek;
+
+            /*Partnerek szerint csoportosítja a készletmozgást, összegzi az egy partnerre vetített áruk mennyiségét és értékét*/
+            public static List<Partner> CreatePartner(List<RaktarMozgas> mozgas)
+            {
+                Partner partner = new Partner();
+                partner.id = 1;
+                partner.nev = mozgas[0].partner;
+                partner.tipus = mozgas[0].tipus;
+                partner.mennyiseg = mozgas[0].mennyiseg;
+                partner.ertek = mozgas[0].egysegAr * mozgas[0].mennyiseg;
+
+                partnerek.Add(partner);
+
+                for (int i = 1; i < mozgas.Count; i++)
+                {
+                    int j = 0;
+                    while (j < partnerek.Count && partnerek[j].nev != mozgas[i].partner) j++;
+                    if (j == partnerek.Count)
+                    {
+                        partner = new Partner();
+                        partner.id = j + 1;
+                        partner.nev = mozgas[i].partner;
+                        partner.tipus = mozgas[i].tipus;
+                        partner.mennyiseg = mozgas[i].mennyiseg;
+                        partner.ertek = mozgas[i].egysegAr * mozgas[i].mennyiseg;
+                        partnerek.Add(partner);
+                    }
+                    else
+                    {
+                        partner = new Partner();
+                        partner.id = j;
+                        partner.nev = mozgas[i].partner;
+                        partner.tipus = mozgas[i].tipus;
+                        partner.mennyiseg = partnerek[j].mennyiseg + mozgas[i].mennyiseg;
+                        partner.ertek = partnerek[j].ertek + mozgas[i].egysegAr * mozgas[i].mennyiseg;
+                        partnerek.RemoveAt(j);
+                        partnerek.Add(partner);
+                    }
+                }
+
+                return partnerek;
+            }
         }
 
         struct TermekRendeles 
@@ -42,31 +108,30 @@ namespace raktarmozgas
             public string termek;
             public float mennyiseg;
             public string partner;
-        }
 
-        static List<RaktarMozgas> mozgas = new List<RaktarMozgas>();
+            /*Összegzi a kifogyó termékeket és létrehozza a rendelési listát a megfelelő beszállítók hozzárendelésével*/
+            public static List<TermekRendeles> CreateOrderList(List<RaktarMozgas> mozgas)
+            {
+                string[] termekek = OutOfStock(mozgas);
+                float[,] mennyisegek = GetProductAmounts(mozgas);
+                string[,] beszallitok = GetProductShippers(mozgas);
 
-        static List<Partner> partnerek = new List<Partner>();
+                int i = 0;
+                while (i < termekek.Length && termekek[i] is not null)
+                {
+                    TermekRendeles termekRendeles = new TermekRendeles();
+                    termekRendeles.id = i + 1;
+                    termekRendeles.ora = 16;
+                    termekRendeles.perc = 00;
+                    termekRendeles.termek = termekek[i];
+                    termekRendeles.mennyiseg = mennyisegek[i, (int)MozgasTipus.BESZERZES];
+                    termekRendeles.partner = beszallitok[i, (int)MozgasTipus.BESZERZES];
 
-        static List<TermekRendeles> rendeles = new List<TermekRendeles>();
-
-        /*Feldarabolja a beolvasott sorokat a megadott elválasztó jel mentén, az értékeket struktura változóiba tölti.*/
-        static RaktarMozgas CreateRaktarMozgas(string input)
-        {
-            string[] data = input.Split(";");
-
-            RaktarMozgas raktarMozgas = new RaktarMozgas();
-            raktarMozgas.id = byte.Parse(data[0]);
-            string[] ido = data[1].Split(":");
-            raktarMozgas.ora = byte.Parse(ido[0]);
-            raktarMozgas.perc = byte.Parse(ido[1]);
-            raktarMozgas.termek = data[2];
-            raktarMozgas.mennyiseg = float.Parse(data[3]);
-            raktarMozgas.egysegAr = double.Parse(data[4]);
-            raktarMozgas.tipus = (MozgasTipus)Enum.Parse(typeof(MozgasTipus), data[5]);
-            raktarMozgas.partner = data[6];
-
-            return raktarMozgas;
+                    rendeles.Add(termekRendeles);
+                    i++;
+                }
+                return rendeles;
+            }
         }
 
         /*Beolvassa és eltárolja a fájl tartalmát, ellenőrzi, hogy a fájlban vannak-e hibák, illetve üres sorok, amiről üzenetet is küld.*/
@@ -89,7 +154,7 @@ namespace raktarmozgas
                     switch (output)
                     {
                         case "raktarMozgas":
-                            mozgas.Add(CreateRaktarMozgas(row));
+                            mozgas.Add(RaktarMozgas.CreateRaktarMozgas(row));
                             break;
                         case "display":
                             row = row.Replace(';', '\t');
@@ -107,52 +172,10 @@ namespace raktarmozgas
             sr.Close();
         }
 
-        /*Partnerek szerint csoportosítja a készletmozgást, összegzi az egy partnerre vetített áruk mennyiségét és értékét*/
-        static List<Partner> CreatePartner(List<RaktarMozgas> mozgas)
-        {
-            Partner partner = new Partner();
-            partner.id = 1;
-            partner.nev = mozgas[0].partner;
-            partner.tipus = mozgas[0].tipus;
-            partner.mennyiseg = mozgas[0].mennyiseg;
-            partner.ertek = mozgas[0].egysegAr * mozgas[0].mennyiseg;
-
-            partnerek.Add(partner);
-
-            for (int i = 1; i < mozgas.Count; i++)
-            {
-                int j = 0;
-                while (j < partnerek.Count && partnerek[j].nev != mozgas[i].partner) j++;
-                if (j == partnerek.Count)
-                {
-                    partner = new Partner();
-                    partner.id = j + 1;
-                    partner.nev = mozgas[i].partner;
-                    partner.tipus = mozgas[i].tipus;
-                    partner.mennyiseg = mozgas[i].mennyiseg;
-                    partner.ertek = mozgas[i].egysegAr * mozgas[i].mennyiseg;
-                    partnerek.Add(partner);
-                }
-                else
-                {
-                    partner = new Partner();
-                    partner.id = j;
-                    partner.nev = mozgas[i].partner;
-                    partner.tipus = mozgas[i].tipus;
-                    partner.mennyiseg = partnerek[j].mennyiseg + mozgas[i].mennyiseg;
-                    partner.ertek = partnerek[j].ertek + mozgas[i].egysegAr * mozgas[i].mennyiseg;
-                    partnerek.RemoveAt(j);
-                    partnerek.Add(partner);
-                }
-            }
-
-            return partnerek;
-        }
-
         /*Kiszámolja és kiírja a legnagyobb értékben és mennyiségben szállító partner nevét.*/
         static void MaxTransport(List<RaktarMozgas> mozgas)
         {
-            partnerek = CreatePartner(mozgas);
+            partnerek = Partner.CreatePartner(mozgas);
 
             var maxM = partnerek.MaxBy(m => m.mennyiseg);
             var maxE = partnerek.MaxBy(m => m.ertek);
@@ -283,30 +306,6 @@ namespace raktarmozgas
                 Console.WriteLine($"\t{termekek[k]}\t{beszerzes}\t{eladas}\t{keszlet} kg.");
                 k++;
             }
-        }
-
-        /*Összegzi a kifogyó termékeket és létrehozza a rendelési listát a megfelelő beszállítók hozzárendelésével*/
-        static List<TermekRendeles> CreateOrderList(List<RaktarMozgas> mozgas)
-        {
-            string[] termekek = OutOfStock(mozgas);
-            float[,] mennyisegek = GetProductAmounts(mozgas);
-            string[,] beszallitok = GetProductShippers(mozgas);
-
-            int i = 0;
-            while(i < termekek.Length && termekek[i] is not null)
-            {
-                TermekRendeles termekRendeles = new TermekRendeles();
-                termekRendeles.id = i+1;
-                termekRendeles.ora = 16;
-                termekRendeles.perc = 00;
-                termekRendeles.termek = termekek[i];
-                termekRendeles.mennyiseg = mennyisegek[i, (int)MozgasTipus.BESZERZES];
-                termekRendeles.partner = beszallitok[i, (int)MozgasTipus.BESZERZES];
-
-                rendeles.Add(termekRendeles);
-                i++;
-            }
-            return rendeles;
         }
 
         /*Kiírja fájlba a rendelési listát*/
@@ -446,7 +445,7 @@ namespace raktarmozgas
             ProductsToOrder(OutOfStock(mozgas), GetProductAmounts(mozgas));
 
             Console.WriteLine("\nFájlba kiírt megrendelés ellenőrzése");
-            PrintOrderList(CreateOrderList(mozgas), "rendeles.txt");
+            PrintOrderList(TermekRendeles.CreateOrderList(mozgas), "rendeles.txt");
             LoadFile("rendeles.txt", "display");
 
             Console.WriteLine("\nNapi\tTermékeladás\tBevétel\tKiadás\tHaszon");
