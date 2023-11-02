@@ -16,7 +16,7 @@ namespace raktarmozgas
         }
         struct RaktarMozgas
         {
-            public byte id;
+            private byte id;
             public byte ora;
             public byte perc;
             public string termek;
