@@ -454,7 +454,7 @@ namespace raktarmozgas
             PrintOrderList(TermekRendeles.CreateOrderList(RaktarMozgas.mozgas), "rendeles.txt");
             LoadFile("rendeles.txt", "display");
 
-            Console.WriteLine("\nA napi termékeladásból származó üzleti haszon (bevétel-kiadás)");
+            Console.WriteLine("\nA napi termékeladásból származó üzleti haszon (eladott mennyiség x (eladási ár - beszerzési ár))");
             DailyProfit();
 
             Console.WriteLine($"\nNapi legforgalmasabb időszakok órák szerint (Lehetnek a megjelenítettel azonos forgalmú időszakok!)");
