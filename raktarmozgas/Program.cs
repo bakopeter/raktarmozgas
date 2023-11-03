@@ -324,8 +324,6 @@ namespace raktarmozgas
             Console.WriteLine($"\tEladott termékek\tmennyisége: {osszMennyE} kg\tösszértéke: {Math.Round(osszErtekE)} Ft.");
         }
 
-        
-
         /*Kiszámolja mely termékek készlete esett 50% alá, és visszaadja azon termékeket, melyekből rendelést kell leadni.*/
         static string[] OutOfStock(List<RaktarMozgas> mozgas)
         {
