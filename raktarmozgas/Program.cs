@@ -149,9 +149,9 @@ namespace raktarmozgas
 
             /*A konstruktor metódus overloadjában létrehoz két Partner példányt, melyek az adatok betöltése után visszaadják a legnagyobb
              beszállítók adatait.*/
-            public Partner(List<Partner> partnerek, string arg = "ertek")
+            public Partner(List<Partner> partnerek, string arg = "mennyiseg")
             {
-                Partner max = (arg == "mennyiseg") ? partnerek.MaxBy(m => m.mennyiseg) : partnerek.MaxBy(m => m.ertek);
+                Partner max = (arg == "ertek") ? partnerek.MaxBy(e => e.ertek) : partnerek.MaxBy(m => m.mennyiseg);
                 id = max.id;
                 nev = max.nev;
                 MozgasTipus tipus = max.tipus;
@@ -288,11 +288,12 @@ namespace raktarmozgas
             sr.Close();
         }
 
-        /*Kiszámolja és kiírja a legnagyobb értékben és mennyiségben szállító partner nevét.*/
-        static void MaxTransport()
+        /*Kiírja a legnagyobb értékben és mennyiségben szállító partner nevét. (A komment zárójelek eltávolításával, és az első két sor,
+         * valamint a Partner struktura konstruktorának kikommentelésével itt is meg lehet valósítani a max/min kiválasztás műveletét.)*/
+        static void MaxTransport(List<Partner> partnerek)
         {
-            Partner maxM = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas), "mennyiseg");
-            Partner maxE = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas));
+            Partner maxE = new Partner(partnerek, "ertek");
+            Partner maxM = new Partner(partnerek, "mennyiseg");
             //Partner.partnerek = Partner.CreatePartner(mozgas);
 
             //Partner maxM = Partner.partnerek.MaxBy(m => m.mennyiseg);
@@ -480,7 +481,7 @@ namespace raktarmozgas
             LoadFile("raktarstat.log", "raktarMozgas");
 
             Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
-            MaxTransport();
+            MaxTransport(Partner.CreatePartner(RaktarMozgas.mozgas));
             //Partner maxM = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas));
             //Console.WriteLine(maxM.nev);
 
