@@ -145,14 +145,13 @@ namespace raktarmozgas
 
             public static List<Partner> partnerek = new List<Partner>();
 
-            public Partner()
-            {
+            public Partner() { }
 
-            }
-
-            public Partner(List<Partner> partnerek, string arg = "ert")
+            /*A konstruktor metódus overloadjában létrehoz két Partner példányt, melyek az adatok betöltése után visszaadják a legnagyobb
+             beszállítók adatait.*/
+            public Partner(List<Partner> partnerek, string arg = "ertek")
             {
-                Partner max = (arg == "menny") ? partnerek.MaxBy(m => m.mennyiseg) : partnerek.MaxBy(m => m.ertek);
+                Partner max = (arg == "mennyiseg") ? partnerek.MaxBy(m => m.mennyiseg) : partnerek.MaxBy(m => m.ertek);
                 id = max.id;
                 nev = max.nev;
                 MozgasTipus tipus = max.tipus;
@@ -292,7 +291,7 @@ namespace raktarmozgas
         /*Kiszámolja és kiírja a legnagyobb értékben és mennyiségben szállító partner nevét.*/
         static void MaxTransport()
         {
-            Partner maxM = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas), "menny");
+            Partner maxM = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas), "mennyiseg");
             Partner maxE = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas));
             //Partner.partnerek = Partner.CreatePartner(mozgas);
 
