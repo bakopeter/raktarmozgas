@@ -1,4 +1,5 @@
-﻿using System.Security.Principal;
+﻿using System.Collections.Generic;
+using System.Security.Principal;
 
 namespace raktarmozgas
 {
@@ -136,18 +137,33 @@ namespace raktarmozgas
 
         struct Partner
         {
-            int id;
-            public string nev;
-            public MozgasTipus tipus;
-            public float mennyiseg;
-            public double ertek;
+            int id = 0;
+            public string nev = "";
+            public MozgasTipus tipus = 0;
+            public float mennyiseg = 0;
+            public double ertek = 0;
 
-            public static List<Partner> partnerek = new();
+            public static List<Partner> partnerek = new List<Partner>();
+
+            public Partner()
+            {
+
+            }
+
+            public Partner(List<Partner> partnerek, string arg = "ert")
+            {
+                Partner max = (arg == "menny") ? partnerek.MaxBy(m => m.mennyiseg) : partnerek.MaxBy(m => m.ertek);
+                id = max.id;
+                nev = max.nev;
+                MozgasTipus tipus = max.tipus;
+                mennyiseg = max.mennyiseg;
+                ertek = max.ertek;
+            }
 
             /*Partnerek szerint csoportosítja a készletmozgást, összegzi az egy partnerre vetített áruk mennyiségét és értékét*/
             public static List<Partner> CreatePartner(List<RaktarMozgas> mozgas)
             {
-                Partner partner = new()
+                Partner partner = new Partner()
                 {
                     id = 1,
                     nev = RaktarMozgas.mozgas[0].partner,
@@ -155,7 +171,7 @@ namespace raktarmozgas
                     mennyiseg = RaktarMozgas.mozgas[0].Mennyiseg,
                     ertek = RaktarMozgas.mozgas[0].EgysegAr * mozgas[0].Mennyiseg
                 };
-                
+
                 partnerek.Add(partner);
 
                 for (int i = 1; i < mozgas.Count; i++)
@@ -164,7 +180,7 @@ namespace raktarmozgas
                     while (j < partnerek.Count && partnerek[j].nev != RaktarMozgas.mozgas[i].partner) j++;
                     if (j == partnerek.Count)
                     {
-                        partner = new Partner
+                        partner = new Partner()
                         {
                             id = j + 1,
                             nev = RaktarMozgas.mozgas[i].partner,
@@ -172,12 +188,12 @@ namespace raktarmozgas
                             mennyiseg = RaktarMozgas.mozgas[i].Mennyiseg,
                             ertek = RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg
                         };
-                        
+
                         partnerek.Add(partner);
                     }
                     else
                     {
-                        partner = new Partner
+                        partner = new Partner()
                         {
                             id = j,
                             nev = RaktarMozgas.mozgas[i].partner,
@@ -185,7 +201,7 @@ namespace raktarmozgas
                             mennyiseg = partnerek[j].mennyiseg + RaktarMozgas.mozgas[i].Mennyiseg,
                             ertek = partnerek[j].ertek + RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg
                         };
-                        
+
                         partnerek.RemoveAt(j);
                         partnerek.Add(partner);
                     }
@@ -193,7 +209,10 @@ namespace raktarmozgas
 
                 return partnerek;
             }
-        }
+            //List<Partner>  partners = CreatePartner(RaktarMozgas.mozgas);
+            //public static Partner maxM = partnerek.MaxBy(m => m.mennyiseg);
+            //public static Partner maxE = partnerek.MaxBy(e => e.ertek);
+        }   
 
         struct TermekRendeles 
         { 
@@ -271,17 +290,19 @@ namespace raktarmozgas
         }
 
         /*Kiszámolja és kiírja a legnagyobb értékben és mennyiségben szállító partner nevét.*/
-        static void MaxTransport(List<RaktarMozgas> mozgas)
+        static void MaxTransport()
         {
-            Partner.partnerek = Partner.CreatePartner(mozgas);
+            Partner maxM = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas), "menny");
+            Partner maxE = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas));
+            //Partner.partnerek = Partner.CreatePartner(mozgas);
 
-            var maxM = Partner.partnerek.MaxBy(m => m.mennyiseg);
-            var maxE = Partner.partnerek.MaxBy(m => m.ertek);
+            //Partner maxM = Partner.partnerek.MaxBy(m => m.mennyiseg);
+            //var maxE = Partner.partnerek.MaxBy(m => m.ertek);
 
             Console.WriteLine($"\tLegnagyobb mennyiség:\t{maxM.nev}\t{maxM.mennyiseg} kg\t{maxM.ertek} Ft.");
             Console.WriteLine($"\tLegnagyobb érték:\t{maxE.nev}\t{maxE.mennyiseg} kg\t{maxE.ertek} Ft.");
         }
-
+        
         /*Kiszámolja és kiírja az össz napi forgalom mennyiségét és értékét.*/
         static void SumTradeFlow(List<Partner> partnerek)
         {
@@ -460,7 +481,9 @@ namespace raktarmozgas
             LoadFile("raktarstat.log", "raktarMozgas");
 
             Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
-            MaxTransport(RaktarMozgas.mozgas);
+            MaxTransport();
+            //Partner maxM = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas));
+            //Console.WriteLine(maxM.nev);
 
             Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
             SumTradeFlow(Partner.partnerek);
