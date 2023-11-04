@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Principal;
+using System.Xml.Linq;
 
 namespace raktarmozgas
 {
@@ -152,13 +154,29 @@ namespace raktarmozgas
         struct Partner //Egy ügyfelet reprezentáló struktúra
         {
             int id = 0;
-            public string nev = "";
-            public MozgasTipus tipus = 0;
-            public float mennyiseg = 0;
+            string nev = "";
+            MozgasTipus tipus = 0;
+            float mennyiseg = 0;
             public double ertek = 0;
+
+            public string Nev { get => nev; }
+            public float Mennyiseg { get => mennyiseg; }
+            public double Ertek { get => ertek; }
 
             public static List<Partner> partnerek = new(); //Az ügyfeleket reprezentáló struktúrák listája
 
+            static Partner maxertek;
+            public static Partner maxErtek
+            {
+                get => maxertek;
+                set => maxertek = value;
+            }
+            public static Partner maxmenny;
+            public static Partner maxMenny
+            {
+                get => maxmenny;
+                set => maxmenny = value;
+            }
             public Partner() { }
 
             /*A konstruktor metódus overloadjában létrehoz két Partner példányt, melyek az adatok betöltése után visszaadják a legnagyobb
@@ -218,6 +236,9 @@ namespace raktarmozgas
                         partnerek.RemoveAt(j);
                         partnerek.Add(partner);
                     }
+
+                    maxertek = new Partner(partnerek, "ertek");
+                    maxmenny = new Partner(partnerek, "mennyiseg");
                 }
 
                 return partnerek;
@@ -324,19 +345,18 @@ namespace raktarmozgas
             sr.Close();
         }
 
-        /*Kiírja a legnagyobb értékben és mennyiségben szállító partner nevét. (A komment zárójelek eltávolításával, és az első két sor,
-         * valamint a Partner struktura konstruktorának kikommentelésével itt is meg lehet valósítani a max/min kiválasztás műveletét.)*/
-        static void MaxTransport(List<Partner> partnerek)
+        /*Kiírja a legnagyobb értékben és mennyiségben szállító partner nevét. (A komment zárójelek eltávolításával, és a Partner struktura 
+         * konstruktorának kikommentelésével itt is meg lehet valósítani a max/min kiválasztás műveletét.)*/
+        static void MaxTransport(List<Partner> partnerek, Partner maxMenny, Partner maxErtek)
         {
-            Partner maxE = new(partnerek, "ertek");
-            Partner maxM = new(partnerek, "mennyiseg");
+            
             //Partner.partnerek = Partner.CreatePartner(mozgas);
 
             //Partner maxM = Partner.partnerek.MaxBy(m => m.mennyiseg);
             //var maxE = Partner.partnerek.MaxBy(m => m.ertek);
 
-            Console.WriteLine($"\tLegnagyobb mennyiség:\t{maxM.nev}\t{maxM.mennyiseg} kg\t{maxM.ertek} Ft.");
-            Console.WriteLine($"\tLegnagyobb érték:\t{maxE.nev}\t{maxE.mennyiseg} kg\t{maxE.ertek} Ft.");
+            Console.WriteLine($"\tLegnagyobb mennyiség:\t{maxMenny.Nev}\t{maxMenny.Mennyiseg} kg\t{maxMenny.Ertek} Ft.");
+            Console.WriteLine($"\tLegnagyobb érték:\t{maxErtek.Nev}\t{maxErtek.Mennyiseg} kg\t{maxErtek.Ertek} Ft.");
         }
 
         /*Kiírja az össz napi forgalom mennyiségét és értékét.*/
@@ -484,9 +504,7 @@ namespace raktarmozgas
             LoadFile("raktarstat.log", "raktarMozgas");
 
             Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
-            MaxTransport(Partner.CreatePartner(RaktarMozgas.mozgas));
-            //Partner maxM = new Partner(Partner.CreatePartner(RaktarMozgas.mozgas));
-            //Console.WriteLine(maxM.nev);
+            MaxTransport(Partner.CreatePartner(RaktarMozgas.mozgas), Partner.maxMenny, Partner.maxErtek);
 
             Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
             DisplayTradeFlow(Partner.SumTradeFlow(Partner.partnerek), Partner.SumCashFlow(Partner.partnerek));
