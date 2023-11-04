@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Principal;
 using System.Xml.Linq;
@@ -26,12 +27,13 @@ namespace raktarmozgas
             float mennyiseg;
             double egysegAr;
             MozgasTipus tipus;
-            public string partner;
+            string partner;
 
             public string Termek { get => termek; }
             public float Mennyiseg {  get => mennyiseg; }
             public double EgysegAr { get => egysegAr; }
             public MozgasTipus Tipus { get => tipus; }
+            public string Partner { get => partner; }
 
             public static List<RaktarMozgas> mozgas = new(); //A készletmozgásokat reprezentáló struktúrák tömbje
 
@@ -114,7 +116,7 @@ namespace raktarmozgas
                 {
                     int j = 0;
                     while (j < termekek.Length && !(item.termek == termekek[j])) j++;
-                    beszallitok[j, (int)item.tipus] = item.partner;
+                    beszallitok[j, (int)item.tipus] = item.Partner;
                 }
                 return beszallitok;
             }
@@ -181,7 +183,7 @@ namespace raktarmozgas
 
             /*A konstruktor metódus overloadjában létrehoz két Partner példányt, melyek az adatok betöltése után visszaadják a legnagyobb
              beszállítók adatait. (Az ügyfelek listájába nem töltődnek be!)*/
-            public Partner(List<Partner> partnerek, string arg = "mennyiseg")
+            Partner(List<Partner> partnerek, string arg = "mennyiseg")
             {
                 Partner max = (arg == "ertek") ? partnerek.MaxBy(e => e.ertek) : partnerek.MaxBy(m => m.mennyiseg);
                 id = max.id;
@@ -191,55 +193,50 @@ namespace raktarmozgas
                 ertek = max.ertek;
             }
 
-            /*Partnerek szerint csoportosítja a készletmozgást, összegzi az egy partnerre vetített áruk mennyiségét és értékét*/
-            public static List<Partner> CreatePartner(List<RaktarMozgas> mozgas)
+            /*Létrehozza az üzleti partnereket reprezentáló struktúrát.*/
+            static Partner CreatePartner(List<RaktarMozgas> mozgas, int index, int id) 
             {
                 Partner partner = new()
                 {
-                    id = 1,
-                    nev = RaktarMozgas.mozgas[0].partner,
-                    tipus = RaktarMozgas.mozgas[0].Tipus,
-                    mennyiseg = RaktarMozgas.mozgas[0].Mennyiseg,
-                    ertek = RaktarMozgas.mozgas[0].EgysegAr * mozgas[0].Mennyiseg
+                    id = id+1,
+                    nev = mozgas[index].Partner,
+                    tipus = mozgas[index].Tipus,
+                    mennyiseg = mozgas[index].Mennyiseg,
+                    ertek = mozgas[index].EgysegAr * mozgas[index].Mennyiseg
                 };
+                return partner; 
+            }
 
-                partnerek.Add(partner);
+            /*Ha ugyanazon partnerhez kapcsolódó eseményt talál, összegzi a partnerhez kötődő árumogás mennyiségét és értékét, majd
+             frissíti a partnert reprezentáló struktúrát az aktuális értékekkel.*/
+            static Partner UpdatePartner(List<RaktarMozgas> mozgas, int index, int id)
+            {
+                Partner partner = new()
+                {
+                    id = id,
+                    nev = mozgas[index].Partner,
+                    tipus = mozgas[index].Tipus,
+                    mennyiseg = partnerek[id].mennyiseg + mozgas[index].Mennyiseg,
+                    ertek = partnerek[id].ertek + mozgas[index].EgysegAr * mozgas[index].Mennyiseg
+                };
+                return partner;
+            }
+
+            /*Partnerek szerint csoportosítja a készletmozgást, összegzi az egy üzleti partnerre vetített áruk mennyiségét és értékét*/
+            public static List<Partner> CreatePartnerList(List<RaktarMozgas> mozgas)
+            {
+               partnerek.Add(CreatePartner(mozgas, 0, 0));
 
                 for (int i = 1; i < mozgas.Count; i++)
                 {
                     int j = 0;
-                    while (j < partnerek.Count && partnerek[j].nev != RaktarMozgas.mozgas[i].partner) j++;
-                    if (j == partnerek.Count)
-                    {
-                        partner = new Partner()
-                        {
-                            id = j + 1,
-                            nev = RaktarMozgas.mozgas[i].partner,
-                            tipus = RaktarMozgas.mozgas[i].Tipus,
-                            mennyiseg = RaktarMozgas.mozgas[i].Mennyiseg,
-                            ertek = RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg
-                        };
-
-                        partnerek.Add(partner);
-                    }
-                    else
-                    {
-                        partner = new Partner()
-                        {
-                            id = j,
-                            nev = RaktarMozgas.mozgas[i].partner,
-                            tipus = RaktarMozgas.mozgas[i].Tipus,
-                            mennyiseg = partnerek[j].mennyiseg + RaktarMozgas.mozgas[i].Mennyiseg,
-                            ertek = partnerek[j].ertek + RaktarMozgas.mozgas[i].EgysegAr * mozgas[i].Mennyiseg
-                        };
-
-                        partnerek.RemoveAt(j);
-                        partnerek.Add(partner);
-                    }
-
-                    maxertek = new Partner(partnerek, "ertek");
-                    maxmenny = new Partner(partnerek, "mennyiseg");
+                    while (j < partnerek.Count && partnerek[j].nev != mozgas[i].Partner) j++;
+                    if (j == partnerek.Count) { partnerek.Add(CreatePartner(mozgas, i, j)); }
+                    else { partnerek.Add(UpdatePartner(mozgas, i, j)); partnerek.RemoveAt(j); }
                 }
+
+                maxertek = new Partner(partnerek, "ertek");
+                maxmenny = new Partner(partnerek, "mennyiseg");
 
                 return partnerek;
             }
@@ -268,11 +265,12 @@ namespace raktarmozgas
             }
         }   
 
-        struct TermekRendeles //Egy terméket reprezentáló struktúra
+        struct TermekRendeles //Egy termék állapotát reprezentáló struktúra
         { 
             int id; 
             byte ora;
             byte perc;
+            MozgasTipus tipus;
             string termek;
             float mennyiseg;
             string partner;
@@ -290,6 +288,7 @@ namespace raktarmozgas
                     id = index + 1,
                     ora = 16,
                     perc = 00,
+                    tipus = MozgasTipus.BESZERZES,
                     termek = termekek[index],
                     mennyiseg = mennyisegek[index, (int)MozgasTipus.BESZERZES],
                     partner = beszallitok[index, (int)MozgasTipus.BESZERZES]
@@ -517,7 +516,7 @@ namespace raktarmozgas
             LoadFile("raktarstat.log", "raktarMozgas");
 
             Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
-            MaxTransport(Partner.CreatePartner(RaktarMozgas.mozgas), Partner.maxMenny, Partner.maxErtek);
+            MaxTransport(Partner.CreatePartnerList(RaktarMozgas.mozgas), Partner.maxMenny, Partner.maxErtek);
 
             Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
             DisplayTradeFlow(Partner.SumTradeFlow(Partner.partnerek), Partner.SumCashFlow(Partner.partnerek));
