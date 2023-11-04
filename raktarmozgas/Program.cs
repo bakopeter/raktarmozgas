@@ -37,12 +37,12 @@ namespace raktarmozgas
             public static List<KeszletMozgas> mozgasok = new(); //A készletmozgásokat reprezentáló struktúrák listája
 
             /*Feldarabolja a beolvasott sorokat a megadott elválasztó jel mentén, az értékeket a struktúra változóiba tölti.*/
-            public static KeszletMozgas CreateRaktarMozgas(string input)
+            public static KeszletMozgas CreateKeszletMozgas(string input)
             {
                 string[] data = input.Split(";");
                 string[] ido = data[1].Split(":");
 
-                KeszletMozgas raktarMozgas = new()
+                KeszletMozgas keszletMozgas = new()
                 {
                     id = byte.Parse(data[0]),
                     ora = byte.Parse(ido[0]),
@@ -54,7 +54,7 @@ namespace raktarmozgas
                     partner = data[6]
                 };
 
-                return raktarMozgas;
+                return keszletMozgas;
             }
 
             /*Létrehoz egy tömböt a különböző féle termékek számára.*/
@@ -342,8 +342,8 @@ namespace raktarmozgas
                     row = sr.ReadLine();
                     switch (output)
                     {
-                        case "raktarMozgas":
-                            KeszletMozgas.mozgasok.Add(KeszletMozgas.CreateRaktarMozgas(row));
+                        case "keszletMozgas":
+                            KeszletMozgas.mozgasok.Add(KeszletMozgas.CreateKeszletMozgas(row));
                             break;
                         case "display":
                             row = row.Replace(';', '\t');
@@ -363,7 +363,7 @@ namespace raktarmozgas
 
         /*Kiírja a legnagyobb értékben és mennyiségben szállító partner nevét. (A komment zárójelek eltávolításával, és a Partner struktura 
          * konstruktorának kikommentelésével itt is meg lehet valósítani a max/min kiválasztás műveletét.)*/
-        static void MaxTransport(List<Partner> partnerek, Partner maxMenny, Partner maxErtek)
+        static void DisplayMaxTransport(List<Partner> partnerek, Partner maxMenny, Partner maxErtek)
         {
             //Partner.partnerek = Partner.CreatePartnerList(mozgas);
 
@@ -385,7 +385,7 @@ namespace raktarmozgas
         }
 
         /*Kilistázza azon termékek mennyiségeit, melyek készlete 50% alá esett.*/
-        static void ProductsToOrder(string[] kifogyoTermekek, float[,] mennyisegek)
+        static void DisplayProductsToOrder(string[] kifogyoTermekek, float[,] mennyisegek)
         {
             int k = 0;
 
@@ -512,16 +512,16 @@ namespace raktarmozgas
         static void Main(string[] args)
         {
             Console.Title = "Hentesüzlet napi készletmozgásai";
-            LoadFile("raktarstat.log", "raktarMozgas");
+            LoadFile("raktarstat.log", "keszletMozgas");
 
             Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
-            MaxTransport(Partner.CreatePartnerList(KeszletMozgas.mozgasok), Partner.maxMenny, Partner.maxErtek);
+            DisplayMaxTransport(Partner.CreatePartnerList(KeszletMozgas.mozgasok), Partner.maxMenny, Partner.maxErtek);
 
             Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
             DisplayTradeFlow(Partner.SumTradeFlow(Partner.partnerek), Partner.SumCashFlow(Partner.partnerek));
 
             Console.WriteLine("\nA készlet 50%-a alá eső termékek, melyek automatikusan hozzáadódnak a rendelési listához");
-            ProductsToOrder(KeszletMozgas.OutOfStock(KeszletMozgas.mozgasok), KeszletMozgas.GetProductAmounts(KeszletMozgas.mozgasok));
+            DisplayProductsToOrder(KeszletMozgas.OutOfStock(KeszletMozgas.mozgasok), KeszletMozgas.GetProductAmounts(KeszletMozgas.mozgasok));
 
             Console.WriteLine("\nFájlba kiírt és onnan visszaolvasott rendelési lista ellenőrzése");
             PrintOrderList(Termek.CreateOrderList(KeszletMozgas.mozgasok), "rendeles.txt");
