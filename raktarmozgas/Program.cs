@@ -157,7 +157,7 @@ namespace raktarmozgas
             string nev = "";
             MozgasTipus tipus = 0;
             float mennyiseg = 0;
-            public double ertek = 0;
+            double ertek = 0;
 
             public string Nev { get => nev; }
             public float Mennyiseg { get => mennyiseg; }
@@ -270,12 +270,12 @@ namespace raktarmozgas
 
         struct TermekRendeles //Egy terméket reprezentáló struktúra
         { 
-            public int id; 
-            public byte ora;
-            public byte perc;
-            public string termek;
-            public float mennyiseg;
-            public string partner;
+            int id; 
+            byte ora;
+            byte perc;
+            string termek;
+            float mennyiseg;
+            string partner;
 
             public static List<TermekRendeles> rendeles = new(); //A termékeket reprezentáló struktúrák listája
 
@@ -312,7 +312,14 @@ namespace raktarmozgas
                 return rendeles;
             }
 
-            //public static  SendOrderList(List<TermekRendeles>)
+            /*Létrehoz egy sort a rendelési listába a rendelési tétel adataiból*/
+            public static string CollectProductDetails(TermekRendeles termek)
+            {
+                string termekAdatok = $"{termek.id};{termek.ora}:{termek.perc};{termek.termek};{termek.mennyiseg};{termek.partner}";
+
+                return termekAdatok;
+            }
+
         }
 
         /*Beolvassa és eltárolja a fájl tartalmát, ellenőrzi, hogy a fájlban vannak-e hibák, illetve üres sorok, amiről üzenetet is küld.*/
@@ -406,7 +413,7 @@ namespace raktarmozgas
 
             foreach (var item in rendeles)
             {
-                sr.WriteLine($"{item.id};{item.ora}:{item.perc};{item.termek};{item.mennyiseg};{item.partner}");
+                sr.WriteLine(TermekRendeles.CollectProductDetails(item));
             }
             sr.Close();
             
