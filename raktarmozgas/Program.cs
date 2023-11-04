@@ -73,7 +73,7 @@ namespace raktarmozgas
                 return termekek;
             }
 
-            /*Létrehoz egy kétdimenziós tömböt a beszállított és eladott termékek mennyiségei számára.*/
+            /*Létrehoz egy kétdimenziós tömböt a beszállított és eladott termékek mennyiségei számára (2. dimenzió a mozgástípus értéke).*/
             public static float[,] GetProductAmounts(List<RaktarMozgas> mozgas)
             {
                 string[] termekek = GetProducts(mozgas);
@@ -89,7 +89,7 @@ namespace raktarmozgas
                 return mennyisegek;
             }
 
-            /*Létrehoz egy kétdimenziós tömböt a termékek beszerzési és eladási ára számára.*/
+            /*Létrehoz egy kétdimenziós tömböt a termékek beszerzési és eladási ára számára (2. dimenzió a mozgástípus értéke).*/
             public static double[,] GetProductPrices(List<RaktarMozgas> mozgas)
             {
                 string[] termekek = GetProducts(mozgas);
@@ -104,7 +104,7 @@ namespace raktarmozgas
                 return termekArak;
             }
 
-            /*Létrehoz egy tömböt az egyes termékek beszállítói számára*/
+            /*Létrehoz egy tömböt az egyes termékek beszállítói számára (2. dimenzió a mozgástípus értéke)*/
             public static string[,] GetProductShippers(List<RaktarMozgas> mozgas)
             {
                 string[] termekek = GetProducts(mozgas);
@@ -279,30 +279,40 @@ namespace raktarmozgas
 
             public static List<TermekRendeles> rendeles = new(); //A termékeket reprezentáló struktúrák listája
 
+            /*Létrehozza a terméket reprezentáló struktúrát*/
+            public static TermekRendeles CreateProduct(List<RaktarMozgas> mozgas, string[] termekek, int index)
+            {
+                float[,] mennyisegek = RaktarMozgas.GetProductAmounts(mozgas);
+                string[,] beszallitok = RaktarMozgas.GetProductShippers(mozgas);
+
+                TermekRendeles termekRendeles = new()
+                {
+                    id = index + 1,
+                    ora = 16,
+                    perc = 00,
+                    termek = termekek[index],
+                    mennyiseg = mennyisegek[index, (int)MozgasTipus.BESZERZES],
+                    partner = beszallitok[index, (int)MozgasTipus.BESZERZES]
+                };
+
+                return termekRendeles;
+            }
+
             /*Összegzi a kifogyó termékeket és létrehozza a rendelési listát a megfelelő beszállítók hozzárendelésével*/
             public static List<TermekRendeles> CreateOrderList(List<RaktarMozgas> mozgas)
             {
                 string[] termekek = RaktarMozgas.OutOfStock(mozgas);
-                float[,] mennyisegek = RaktarMozgas.GetProductAmounts(mozgas);
-                string[,] beszallitok = RaktarMozgas.GetProductShippers(mozgas);
-
+                
                 int i = 0;
                 while (i < termekek.Length && termekek[i] is not null)
                 {
-                    TermekRendeles termekRendeles = new()
-                    {
-                        id = i + 1,
-                        ora = 16,
-                        perc = 00,
-                        termek = termekek[i],
-                        mennyiseg = mennyisegek[i, (int)MozgasTipus.BESZERZES],
-                        partner = beszallitok[i, (int)MozgasTipus.BESZERZES]
-                    };
-                    rendeles.Add(termekRendeles);
+                    rendeles.Add(CreateProduct(mozgas, termekek, i));
                     i++;
                 }
                 return rendeles;
             }
+
+            //public static  SendOrderList(List<TermekRendeles>)
         }
 
         /*Beolvassa és eltárolja a fájl tartalmát, ellenőrzi, hogy a fájlban vannak-e hibák, illetve üres sorok, amiről üzenetet is küld.*/
@@ -403,12 +413,8 @@ namespace raktarmozgas
         }
 
         /*Termékenként összegzi a napi bevételt és kiadást, majd ebből kiszámolja és kiírja a profitot.*/
-        static void DailyProfit()
+        static void DailyProfit(string[] termekek, float[,] mennyisegek, double[,] termekArak)
         {
-            string[] termekek = RaktarMozgas.GetProducts(RaktarMozgas.mozgas);
-            float[,] mennyisegek = RaktarMozgas.GetProductAmounts(RaktarMozgas.mozgas);
-            double[,] termekArak = RaktarMozgas.GetProductPrices(RaktarMozgas.mozgas);
-
             double osszKiadas = 0;
             double osszBevetel = 0;
             double osszProfit = 0;
@@ -517,7 +523,8 @@ namespace raktarmozgas
             LoadFile("rendeles.txt", "display");
 
             Console.WriteLine("\nA napi termékeladásból származó üzleti haszon (eladott mennyiség x (eladási ár - beszerzési ár))");
-            DailyProfit();
+            DailyProfit(RaktarMozgas.GetProducts(RaktarMozgas.mozgas), RaktarMozgas.GetProductAmounts(RaktarMozgas.mozgas), 
+                RaktarMozgas.GetProductPrices(RaktarMozgas.mozgas));
 
             Console.WriteLine($"\nNapi legforgalmasabb időszakok órák szerint (Lehetnek a megjelenítettel azonos forgalmú időszakok!)");
             MaxTradeFlow(RaktarMozgas.SalesPerHour(RaktarMozgas.mozgas), 8, 16);
