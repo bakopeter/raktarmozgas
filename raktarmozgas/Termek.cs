@@ -12,9 +12,9 @@ namespace raktarmozgas
         byte ora;
         byte perc;
         MozgasTipus tipus;
-        string nev;
+        string nev = "";
         float mennyiseg;
-        string partner;
+        string partner ="";
 
         public static List<Termek> keszlet = new(); //A termékeket reprezentáló struktúrák listája
 
@@ -60,5 +60,6 @@ namespace raktarmozgas
             return termekAdatok;
         }
 
+        
     }
 }

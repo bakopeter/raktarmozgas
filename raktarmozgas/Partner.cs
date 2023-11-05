@@ -117,5 +117,18 @@ namespace raktarmozgas
             }
             return osszertek;
         }
+
+        /*Kiírja a legnagyobb értékben és mennyiségben szállító partner nevét. (A komment zárójelek eltávolításával, és a Partner struktura 
+         * konstruktorának kikommentelésével itt is meg lehet valósítani a max/min kiválasztás műveletét.)*/
+        public static void DisplayMaxTransport(List<Partner> partnerek, Partner Maxmenny, Partner Maxertek)
+        {
+            //Partner.partnerek = Partner.CreatePartnerList(mozgas);
+
+            //Partner maxM = Partner.partnerek.MaxBy(m => m.mennyiseg);
+            //var maxE = Partner.partnerek.MaxBy(m => m.ertek);
+
+            Console.WriteLine($"\tLegnagyobb mennyiség:\t{Maxmenny.Nev}\t{Maxmenny.Mennyiseg} kg\t{Maxmenny.Ertek} Ft.");
+            Console.WriteLine($"\tLegnagyobb érték:\t{Maxertek.Nev}\t{Maxertek.Mennyiseg} kg\t{Maxertek.Ertek} Ft.");
+        }
     }
 }
