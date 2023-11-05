@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace raktarmozgas
 {
-    internal class KeszletMozgas //Egy készletmozgást reprezentáló struktúra
+    internal class KeszletMozgas //Egy készletmozgást reprezentáló osztály
     {
         byte id;
         byte ora;
@@ -22,12 +22,12 @@ namespace raktarmozgas
         public MozgasTipus Tipus { get => tipus; }
         public string Partner { get => partner; }
 
-        public static List<KeszletMozgas> mozgasok = new(); //A készletmozgásokat reprezentáló struktúrák listája
+        public static List<KeszletMozgas> mozgasok = new(); //A készletmozgásokat reprezentáló objektumok listája
 
         public static int termekFajta = 10; //Termékféleségek aktuális darabszáma
         public static int mozgasFajta = 4; //Készletmozgás lehetséges típusainak száma
 
-        /*Feldarabolja a beolvasott sorokat a megadott elválasztó jel mentén, az értékeket a struktúra változóiba tölti.*/
+        /*Feldarabolja a beolvasott sorokat a megadott elválasztó jel mentén, az értékeket az objektum változóiba tölti.*/
         public static KeszletMozgas CreateKeszletMozgas(string input)
         {
             string[] data = input.Split(";");

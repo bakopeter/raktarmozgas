@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace raktarmozgas
 {
-    internal class Partner : KeszletMozgas //Egy ügyfelet reprezentáló struktúra
+    internal class Partner : KeszletMozgas //Egy ügyfelet reprezentáló osztály
     {
         int id = 0;
         string nev = "";
@@ -18,7 +18,7 @@ namespace raktarmozgas
         public float Mennyiseg { get => mennyiseg; }
         public double Ertek { get => ertek; }
 
-        public static List<Partner> partnerek = new(); //Az ügyfeleket reprezentáló struktúrák listája
+        public static List<Partner> partnerek = new(); //Az ügyfeleket reprezentáló objektumok listája
 
         static Partner maxertek;
         public static Partner Maxertek
@@ -34,7 +34,7 @@ namespace raktarmozgas
         }
         public Partner() { }
 
-        /*A konstruktor metódus overloadjában létrehoz két Partner példányt, melyek az adatok betöltése után visszaadják a legnagyobb
+        /*A konstruktor metódus overloadjában létrehoz két Partner objektumot, melyek az adatok betöltése után visszaadják a legnagyobb
          beszállítók adatait. (Az ügyfelek listájába nem töltődnek be!)*/
         Partner(List<Partner> partnerek, string arg = "mennyiseg")
         {
@@ -46,7 +46,7 @@ namespace raktarmozgas
             ertek = max.ertek;
         }
 
-        /*Létrehozza az üzleti partnereket reprezentáló struktúrát.*/
+        /*Létrehozza az üzleti partnereket reprezentáló objektumot.*/
         static Partner CreatePartner(List<KeszletMozgas> mozgas, int index, int id)
         {
             Partner partner = new()
@@ -61,7 +61,7 @@ namespace raktarmozgas
         }
 
         /*Ha ugyanazon partnerhez kapcsolódó eseményt talál, összegzi a partnerhez kötődő árumogás mennyiségét és értékét, majd
-         frissíti a partnert reprezentáló struktúrát az aktuális értékekkel.*/
+         frissíti a partnert reprezentáló objektumot az aktuális értékekkel.*/
         static Partner UpdatePartner(List<KeszletMozgas> mozgas, int index, int id)
         {
             Partner partner = new()
@@ -106,7 +106,7 @@ namespace raktarmozgas
             }
             return osszmenny;
         }
-        /*Kiszámoljaaz össz napi pénzforgalom értékét.*/
+        /*Kiszámolja az össz napi pénzforgalom értékét.*/
         public static double[] SumCashFlow(List<Partner> partnerek)
         {
             double[] osszertek = new double[mozgasFajta];

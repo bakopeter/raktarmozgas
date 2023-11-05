@@ -6,7 +6,9 @@ using System.Xml.Linq;
 
 namespace raktarmozgas
 {
-    internal class Program : Display
+    /*A főprogramot tartalmazó osztály. Kommunikál a felhasználóval, adatot kér be, meghívja a szükséges információkat megjelenítő 
+     * metódusokat, elvégzi a fájlba történő kiiratást.*/
+    internal class Program : Display 
     {
         static void Main(string[] args)
         {

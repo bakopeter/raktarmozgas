@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace raktarmozgas
 {
-    public class Display
+    public class Display //A lekérdezések eredményeinek kiiratására és adatok bekérésére szolgáló osztály
     {
         /*Beolvassa és eltárolja a fájl tartalmát, ellenőrzi, hogy a fájlban vannak-e hibák, illetve üres sorok, amiről üzenetet is küld.*/
         public static void LoadFile(string path, string output)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace raktarmozgas
 {
-    internal class Termek : KeszletMozgas //Egy termék állapotát reprezentáló struktúra
+    internal class Termek : KeszletMozgas //Egy termék állapotát reprezentáló osztály
     {
         int id;
         byte ora;
@@ -16,9 +16,9 @@ namespace raktarmozgas
         float mennyiseg;
         string partner ="";
 
-        public static List<Termek> keszlet = new(); //A termékeket reprezentáló struktúrák listája
+        public static List<Termek> keszlet = new(); //A termékeket reprezentáló objektumok listája
 
-        /*Létrehozza a terméket reprezentáló struktúrát*/
+        /*Létrehozza a terméket reprezentáló objektumot*/
         public static Termek CreateProduct(List<KeszletMozgas> mozgas, string[] termekek, int index)
         {
             float[,] mennyisegek = KeszletMozgas.GetProductAmounts(mozgas);
@@ -52,7 +52,7 @@ namespace raktarmozgas
             return keszlet;
         }
 
-        /*Létrehoz egy sort a rendelési listába a rendelési tétel adataiból*/
+        /*Létrehoz egy sort a rendelési listában a rendelési tétel adataiból*/
         public static string CollectProductDetails(Termek termek)
         {
             string termekAdatok = $"{termek.id};{termek.ora}:{termek.perc};{termek.nev};{termek.mennyiseg};{termek.partner}";
