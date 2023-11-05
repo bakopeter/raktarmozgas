@@ -50,15 +50,15 @@ namespace raktarmozgas
 
         /*Kiírja a legnagyobb értékben és mennyiségben szállító partner nevét. (A komment zárójelek eltávolításával, és a Partner struktura 
          * konstruktorának kikommentelésével itt is meg lehet valósítani a max/min kiválasztás műveletét.)*/
-        static void DisplayMaxTransport(List<Partner> partnerek, Partner maxMenny, Partner maxErtek)
+        static void DisplayMaxTransport(List<Partner> partnerek, Partner Maxmenny, Partner Maxertek)
         {
             //Partner.partnerek = Partner.CreatePartnerList(mozgas);
 
             //Partner maxM = Partner.partnerek.MaxBy(m => m.mennyiseg);
             //var maxE = Partner.partnerek.MaxBy(m => m.ertek);
 
-            Console.WriteLine($"\tLegnagyobb mennyiség:\t{maxMenny.Nev}\t{maxMenny.Mennyiseg} kg\t{maxMenny.Ertek} Ft.");
-            Console.WriteLine($"\tLegnagyobb érték:\t{maxErtek.Nev}\t{maxErtek.Mennyiseg} kg\t{maxErtek.Ertek} Ft.");
+            Console.WriteLine($"\tLegnagyobb mennyiség:\t{Maxmenny.Nev}\t{Maxmenny.Mennyiseg} kg\t{Maxmenny.Ertek} Ft.");
+            Console.WriteLine($"\tLegnagyobb érték:\t{Maxertek.Nev}\t{Maxertek.Mennyiseg} kg\t{Maxertek.Ertek} Ft.");
         }
 
         /*Kiírja az össz napi forgalom mennyiségét és értékét.*/
@@ -202,7 +202,7 @@ namespace raktarmozgas
             LoadFile("raktarstat.log", "keszletMozgas");
 
             Console.WriteLine("\nLegtöbbet, és legnagyobb értékben szállító partner");
-            DisplayMaxTransport(Partner.CreatePartnerList(KeszletMozgas.mozgasok), Partner.maxMenny, Partner.maxErtek);
+            DisplayMaxTransport(Partner.CreatePartnerList(KeszletMozgas.mozgasok), Partner.Maxmenny, Partner.Maxertek);
 
             Console.WriteLine("\nÖsszes beszállított és eladott termék mennyisége és összértéke");
             DisplayTradeFlow(Partner.SumTradeFlow(Partner.partnerek), Partner.SumCashFlow(Partner.partnerek));

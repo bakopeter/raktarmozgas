@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace raktarmozgas
 {
-    class Partner : KeszletMozgas //Egy ügyfelet reprezentáló struktúra
+    internal class Partner : KeszletMozgas //Egy ügyfelet reprezentáló struktúra
     {
         int id = 0;
         string nev = "";
@@ -21,13 +21,13 @@ namespace raktarmozgas
         public static List<Partner> partnerek = new(); //Az ügyfeleket reprezentáló struktúrák listája
 
         static Partner maxertek;
-        public static Partner maxErtek
+        public static Partner Maxertek
         {
             get => maxertek;
             set => maxertek = value;
         }
-        public static Partner maxmenny;
-        public static Partner maxMenny
+        static Partner maxmenny;
+        public static Partner Maxmenny
         {
             get => maxmenny;
             set => maxmenny = value;

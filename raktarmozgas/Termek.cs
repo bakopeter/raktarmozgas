@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace raktarmozgas
 {
-    class Termek : KeszletMozgas //Egy termék állapotát reprezentáló struktúra
+    internal class Termek : KeszletMozgas //Egy termék állapotát reprezentáló struktúra
     {
         int id;
         byte ora;
